@@ -21,9 +21,9 @@ describe('API Contract Tests', () => {
 
     test('should have consistent parameter patterns', () => {
       // Most API functions should accept an options object
-      expect(api.getAccountRisks.length).toBe(1);
-      expect(api.getVendorRisks.length).toBe(1);
-      expect(api.listMonitoredVendors.length).toBe(1);
+      expect(api.getAccountRisks).toHaveLength(1);
+      expect(api.getVendorRisks).toHaveLength(1);
+      expect(api.listMonitoredVendors).toHaveLength(1);
     });
   });
 
@@ -33,13 +33,7 @@ describe('API Contract Tests', () => {
       const originalRequest = require('axios').request;
       require('axios').request = jest.fn().mockRejectedValue(new Error('Network error'));
 
-      try {
-        await api.getAccountRisks({});
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-        expect(typeof error.message).toBe('string');
-      }
+      await expect(api.getAccountRisks({})).rejects.toThrow('Network error');
 
       // Restore original function
       require('axios').request = originalRequest;
