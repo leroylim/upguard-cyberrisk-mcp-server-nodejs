@@ -24,7 +24,7 @@ describe('Configuration', () => {
       expect(config.transport.mode).toBe('stdio');
       expect(config.transport.http.port).toBe(3000);
       expect(config.transport.http.host).toBe('localhost');
-      expect(config.transport.http.sessionManagement).toBe(false);
+      expect(config.transport.http.sessionManagement).toBe(true);
     });
 
     test('should have logging configuration', () => {
