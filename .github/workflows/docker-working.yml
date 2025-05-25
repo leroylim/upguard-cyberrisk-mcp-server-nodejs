@@ -1,15 +1,13 @@
-name: Build and Push Docker Image
+name: Docker Build (Working Version)
 
 on:
   push:
     branches: [ main, develop ]
     tags: [ 'v*' ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push:
@@ -17,7 +15,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write  # For attestation
 
     steps:
     - name: Checkout repository
@@ -50,7 +47,6 @@ jobs:
           type=raw,value=latest,enable={{is_default_branch}}
 
     - name: Build and push Docker image
-      id: build
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -61,10 +57,5 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-    - name: Show build results
-      if: ${{ github.event_name != 'pull_request' }}
-      run: |
-        echo "✅ Docker image built and pushed successfully!"
-        echo "📦 Registry: ${{ env.REGISTRY }}"
-        echo "🏷️ Repository: ${{ steps.repo.outputs.repository }}"
-        echo "🔖 Tags: ${{ steps.meta.outputs.tags }}"
+    - name: Image digest
+      run: echo "Image pushed successfully to ${{ env.REGISTRY }}/${{ steps.repo.outputs.repository }}" 
