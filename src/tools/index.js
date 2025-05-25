@@ -1,3 +1,4 @@
+const { logger } = require('../utils/logger');
 const riskTools = require('./risks');
 const vendorTools = require('./vendors');
 const breachTools = require('./breaches');
@@ -38,13 +39,14 @@ function registerAllTools(server) {
         try {
             if (module && typeof module.registerTools === 'function') {
                 module.registerTools(server);
+                logger.info(`Registered tools from ${name}`);
             } else {
-                console.warn(`[TOOLS] ⚠️ Warning: ${name} module does not export registerTools function`);
+                logger.warn(`No registerTools function found in ${name}`);
             }
         } catch (error) {
-            console.error(`[TOOLS] ❌ Failed to register ${name} tools:`, error.message);
+            logger.error(`Failed to register ${name} tools:`, error.message);
             if (error.message.includes('keyValidator._parse is not a function')) {
-                console.error(`[TOOLS] This appears to be a Zod schema validation issue. Check that all schemas in ${name} are properly defined.`);
+                logger.error(`This appears to be a Zod schema validation issue. Check that all schemas in ${name} are properly defined.`);
             }
             throw new Error(`Tool registration failed for ${name}: ${error.message}`);
         }

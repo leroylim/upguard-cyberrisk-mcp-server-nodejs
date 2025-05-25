@@ -95,7 +95,7 @@ const schemas = {
 
     // IP Address validation
     ipAddress: validateSchema(z.string()
-        .regex(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/, 'Invalid IP address format')
+        .regex(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/, 'Invalid IP address format')
         .describe("IPv4 address (e.g., '192.168.1.1')."), 'ipAddress'),
 
     // Pagination - commonly used across list endpoints

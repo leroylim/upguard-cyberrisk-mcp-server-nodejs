@@ -1,6 +1,6 @@
 const { z } = require('zod');
 const fs = require('fs');
-const path = require('path');
+const { logger } = require('../utils/logger');
 
 // Configuration schema validation
 const configSchema = z.object({
@@ -94,7 +94,7 @@ class ConfigManager {
         fileConfig = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
         this.configPath = configFilePath;
       } catch (error) {
-        console.warn(`Failed to load config file ${configFilePath}:`, error.message);
+        logger.warn(`Failed to load config file ${configFilePath}:`, error.message);
       }
     }
     
@@ -104,11 +104,11 @@ class ConfigManager {
     // Validate configuration
     try {
       this.config = configSchema.parse(mergedConfig);
-      console.log('✅ Configuration loaded and validated successfully');
+      logger.info('✅ Configuration loaded and validated successfully');
       return this.config;
     } catch (error) {
-      console.error('❌ Configuration validation failed:');
-      console.error(error.errors.map(e => `  ${e.path.join('.')}: ${e.message}`).join('\n'));
+      logger.error('❌ Configuration validation failed:');
+      logger.error(error.errors.map(e => `  ${e.path.join('.')}: ${e.message}`).join('\n'));
       throw new Error('Invalid configuration');
     }
   }
@@ -229,9 +229,9 @@ class ConfigManager {
    * Validate API key and connection
    * @returns {Promise<boolean>} True if API is accessible
    */
-  async validateApiConnection() {
+  validateApiConnection() {
     // Implementation would test API connectivity
-    return true;
+    return Promise.resolve(true);
   }
 
   /**

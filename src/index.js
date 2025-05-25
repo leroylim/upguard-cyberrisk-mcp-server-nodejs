@@ -1,7 +1,7 @@
-const { McpServer } = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/mcp.js');
-const { StdioServerTransport } = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/stdio.js');
-const { StreamableHTTPServerTransport } = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/streamableHttp.js');
-const { CallToolRequestSchema, isInitializeRequest } = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/types.js');
+const { McpServer } = require('@modelcontextprotocol/sdk/server/mcp.js');
+const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
+const { StreamableHTTPServerTransport } = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
+const { isInitializeRequest } = require('@modelcontextprotocol/sdk/types.js');
 const { randomUUID } = require('crypto');
 const express = require('express');
 const { z } = require('zod');
@@ -19,7 +19,7 @@ async function createServer() {
     });
 
     // Register all tools
-    registerAllTools(serverInstance);
+    await registerAllTools(serverInstance);
 
     // Example prompts for common operations
     serverInstance.prompt(
@@ -275,7 +275,7 @@ async function startHttpServer() {
             }
         });
 
-        app.get('/mcp', async (req, res) => {
+        app.get('/mcp', (req, res) => {
             res.writeHead(405).end(JSON.stringify({
                 jsonrpc: '2.0',
                 error: {
@@ -286,7 +286,7 @@ async function startHttpServer() {
             }));
         });
 
-        app.delete('/mcp', async (req, res) => {
+        app.delete('/mcp', (req, res) => {
             res.writeHead(405).end(JSON.stringify({
                 jsonrpc: '2.0',
                 error: {
@@ -312,7 +312,7 @@ async function startHttpServer() {
     const { port, host } = config.transport.http;
     httpServer = app.listen(port, host, () => {
         const sessionMode = config.transport.http.sessionManagement ? 'with session management' : 'stateless';
-        console.error(`[MCP Server Log] UpGuard CyberRisk MCP Server (v1.2.0) HTTP transport running on ${host}:${port} (${sessionMode})`);
+        logger.info(`[MCP Server Log] UpGuard CyberRisk MCP Server (v1.2.0) HTTP transport running on ${host}:${port} (${sessionMode})`);
         logger.info(`HTTP server started on ${host}:${port} (${sessionMode})`);
     });
 
@@ -325,7 +325,7 @@ async function startStdioServer() {
     const transport = new StdioServerTransport();
     
     await serverInstance.connect(transport);
-    console.error('[MCP Server Log] UpGuard CyberRisk MCP Server (v1.2.0) STDIO transport is running...');
+    logger.info('[MCP Server Log] UpGuard CyberRisk MCP Server (v1.2.0) STDIO transport is running...');
     logger.info('STDIO server started');
 }
 
@@ -341,8 +341,8 @@ async function startServer() {
         }
     } catch (error) {
         logger.error('Failed to start UpGuard CyberRisk MCP Server:', error);
-        console.error('[MCP Server Log] Failed to start UpGuard CyberRisk MCP Server:', error);
-        process.exit(1);
+        logger.error('[MCP Server Log] Failed to start UpGuard CyberRisk MCP Server:', error);
+        throw error;
     }
 }
 
@@ -354,12 +354,13 @@ let isShuttingDown = false;
 
 function gracefulShutdown(signal) {
     if (isShuttingDown) {
-        console.error(`[MCP Server Log] Force shutdown on ${signal}`);
+        logger.error(`[MCP Server Log] Force shutdown on ${signal}`);
+        // eslint-disable-next-line no-process-exit
         process.exit(1);
     }
     
     isShuttingDown = true;
-    console.error(`[MCP Server Log] Received ${signal}, shutting down gracefully...`);
+    logger.info(`[MCP Server Log] Received ${signal}, shutting down gracefully...`);
     logger.info(`Received ${signal}, initiating graceful shutdown`);
     
     // Close HTTP server if running
@@ -373,16 +374,18 @@ function gracefulShutdown(signal) {
             
             // Give the server a moment to finish current operations
             setTimeout(() => {
-                console.error('[MCP Server Log] UpGuard CyberRisk MCP Server stopped');
+                logger.info('[MCP Server Log] UpGuard CyberRisk MCP Server stopped');
                 logger.info('Server shutdown complete');
+                // eslint-disable-next-line no-process-exit
                 process.exit(0);
             }, 500);
         });
     } else {
         // For STDIO mode, just wait a moment
         setTimeout(() => {
-            console.error('[MCP Server Log] UpGuard CyberRisk MCP Server stopped');
+            logger.info('[MCP Server Log] UpGuard CyberRisk MCP Server stopped');
             logger.info('Server shutdown complete');
+            // eslint-disable-next-line no-process-exit
             process.exit(0);
         }, 500);
     }
@@ -395,13 +398,13 @@ process.on('SIGQUIT', () => gracefulShutdown('SIGQUIT'));
 
 // Handle uncaught exceptions and unhandled rejections
 process.on('uncaughtException', (error) => {
-    console.error('[MCP Server Log] Uncaught Exception:', error);
+    logger.error('[MCP Server Log] Uncaught Exception:', error);
     logger.error('Uncaught Exception:', error);
     gracefulShutdown('uncaughtException');
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('[MCP Server Log] Unhandled Rejection at:', promise, 'reason:', reason);
+    logger.error('[MCP Server Log] Unhandled Rejection at:', promise, 'reason:', reason);
     logger.error('Unhandled Rejection:', { promise, reason });
     gracefulShutdown('unhandledRejection');
 });

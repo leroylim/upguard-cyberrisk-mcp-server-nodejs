@@ -1,7 +1,6 @@
 const api = require('../api');
 const { logger } = require('../utils/logger');
 const { z } = require('zod');
-const schemas = require('./schemas');
 
 function registerTools(server) {
     server.tool(

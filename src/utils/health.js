@@ -1,4 +1,3 @@
-const { logger } = require('./logger');
 const os = require('os');
 
 class HealthMonitor {
@@ -77,7 +76,7 @@ class HealthMonitor {
 const healthMonitor = new HealthMonitor();
 
 // Register some basic health checks
-healthMonitor.registerHealthCheck('memory', async () => {
+healthMonitor.registerHealthCheck('memory', () => {
     const usedMemory = process.memoryUsage();
     return {
         status: 'ok',
@@ -89,7 +88,7 @@ healthMonitor.registerHealthCheck('memory', async () => {
     };
 });
 
-healthMonitor.registerHealthCheck('system', async () => {
+healthMonitor.registerHealthCheck('system', () => {
     return {
         status: 'ok',
         load: os.loadavg(),

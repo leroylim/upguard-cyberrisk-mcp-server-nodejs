@@ -288,7 +288,7 @@ class SecurityManager {
     }
 
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher(this.encryptionAlgorithm, this.config.encryptionKey);
+    const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(this.config.encryptionKey, 'base64'), iv);
     cipher.setAAD(Buffer.from('upguard-mcp-server'));
 
     let encrypted = cipher.update(data, 'utf8', 'hex');
@@ -313,8 +313,9 @@ class SecurityManager {
       throw new Error('Encryption key not configured');
     }
 
-    const { encrypted, iv, tag } = encryptedData;
-    const decipher = crypto.createDecipher(this.encryptionAlgorithm, this.config.encryptionKey);
+    const { encrypted, tag } = encryptedData;
+    const iv = Buffer.from(encryptedData.iv, 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-gcm', Buffer.from(this.config.encryptionKey, 'base64'), iv);
     
     decipher.setAAD(Buffer.from('upguard-mcp-server'));
     decipher.setAuthTag(Buffer.from(tag, 'hex'));
@@ -388,7 +389,6 @@ class SecurityManager {
     }
 
     // Clean up suspicious IPs after 24 hours
-    const suspiciousCutoff = Date.now() - (24 * 60 * 60 * 1000);
     // This would need proper timestamp tracking in a real implementation
   }
 

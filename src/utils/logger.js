@@ -52,11 +52,11 @@ const errorLogger = (err, req, res, next) => {
 };
 
 // Helper methods
-const logApiCall = (method, endpoint, params, response) => {
+const logApiCall = (method, endpoint, _params, _response) => {
     logger.debug(`API Call - ${method} ${endpoint}`);
 };
 
-const logToolExecution = (toolName, args, result) => {
+const logToolExecution = (toolName, _args, _result) => {
     logger.info(`Tool Execution: ${toolName}`);
 };
 

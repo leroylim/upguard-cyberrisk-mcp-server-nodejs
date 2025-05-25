@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { logger } = require('./logger');
 
 class ApiDocumentationGenerator {
   constructor() {
@@ -74,7 +75,7 @@ class ApiDocumentationGenerator {
       try {
         this.openApiSpec.components.schemas[name] = this.zodToOpenApi(schema);
       } catch (error) {
-        console.warn(`Failed to convert schema ${name}:`, error.message);
+        logger.warn(`Failed to convert schema ${name}:`, error.message);
       }
     }
   }
@@ -124,7 +125,7 @@ class ApiDocumentationGenerator {
             description: def.description
           };
           
-        case 'ZodObject':
+        case 'ZodObject': {
           const properties = {};
           const required = [];
           
@@ -141,7 +142,8 @@ class ApiDocumentationGenerator {
             required: required.length > 0 ? required : undefined,
             description: def.description
           };
-          
+        }
+        
         default:
           return {
             type: 'string',
@@ -497,7 +499,7 @@ class ApiDocumentationGenerator {
    */
   generateExampleFromSchema(schema) {
     switch (schema.type) {
-      case 'object':
+      case 'object': {
         const example = {};
         if (schema.properties) {
           for (const [key, prop] of Object.entries(schema.properties)) {
@@ -505,6 +507,7 @@ class ApiDocumentationGenerator {
           }
         }
         return example;
+      }
         
       case 'array':
         return [this.generateExampleFromSchema(schema.items)];
@@ -532,7 +535,7 @@ class ApiDocumentationGenerator {
    * @param {string} outputDir - Output directory
    * @param {object} options - Options
    */
-  async saveDocumentation(outputDir = './docs', options = {}) {
+  saveDocumentation(outputDir = './docs', options = {}) {
     const { 
       generateOpenApi = true, 
       generateMarkdown = true,
@@ -547,19 +550,19 @@ class ApiDocumentationGenerator {
     if (generateOpenApi) {
       const openApiPath = path.join(outputDir, 'openapi.json');
       fs.writeFileSync(openApiPath, JSON.stringify(this.openApiSpec, null, 2));
-      console.log(`OpenAPI specification saved to ${openApiPath}`);
+      logger.info(`OpenAPI specification saved to ${openApiPath}`);
     }
     
     if (generateMarkdown) {
       const markdownPath = path.join(outputDir, 'API.md');
       const markdown = this.generateMarkdown();
       fs.writeFileSync(markdownPath, markdown);
-      console.log(`Markdown documentation saved to ${markdownPath}`);
+      logger.info(`Markdown documentation saved to ${markdownPath}`);
     }
     
     if (generateHtml) {
       // Would integrate with tools like Redoc or Swagger UI
-      console.log('HTML generation would require additional dependencies');
+      logger.info('HTML generation would require additional dependencies');
     }
   }
 }

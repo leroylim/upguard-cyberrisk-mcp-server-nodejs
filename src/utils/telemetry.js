@@ -301,7 +301,6 @@ class TelemetryCollector extends EventEmitter {
       output += `# HELP ${name} ${histogram.description}\n`;
       output += `# TYPE ${name} histogram\n`;
       
-      const stats = this.calculateHistogramStats(histogram);
       for (const bucket of histogram.buckets) {
         const count = histogram.values.filter(v => v <= bucket).length;
         output += `${name}_bucket{le="${bucket}"} ${count}\n`;

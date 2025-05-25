@@ -166,8 +166,8 @@ async function withResilience(fn, options = {}) {
     const circuitBreaker = options.circuitBreaker || upguardApiCircuitBreaker;
     const context = options.context || 'API call';
 
-    return circuitBreaker.execute(async () => {
-        return retryPolicy.execute(fn, context);
+    return await circuitBreaker.execute(async () => {
+        return await retryPolicy.execute(fn, context);
     }, context);
 }
 
