@@ -1,4 +1,4 @@
-const { Server } = require('@modelcontextprotocol/sdk/dist/cjs/server/mcp');
+const { McpServer } = require('../../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/mcp.js');
 const { registerAllTools } = require('../tools');
 const { logger } = require('../utils/logger');
 
@@ -7,7 +7,7 @@ describe('MCP Server', () => {
 
   beforeEach(() => {
     // Create a fresh server instance for each test
-    server = new Server({
+    server = new McpServer({
       name: 'upguard_cyberrisk_mcp_server_test',
       version: '1.2.0',
       description: 'Test MCP server for UpGuard CyberRisk API'
@@ -43,7 +43,7 @@ describe('MCP Server', () => {
     });
 
     test('should be able to register tools on fresh server instance', () => {
-      const freshServer = new Server({
+      const freshServer = new McpServer({
         name: 'fresh_test_server',
         version: '1.0.0',
         description: 'Fresh test server'

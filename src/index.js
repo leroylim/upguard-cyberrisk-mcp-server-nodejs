@@ -1,8 +1,7 @@
-const { Server } = require('@modelcontextprotocol/sdk/dist/cjs/server/mcp');
-const { StdioServerTransport } = require('@modelcontextprotocol/sdk/dist/cjs/server/stdio');
-const { StreamableHTTPServerTransport } = require('@modelcontextprotocol/sdk/dist/cjs/server/streamableHttp');
-const { CallToolRequestSchema } = require('@modelcontextprotocol/sdk/dist/cjs/types');
-const { isInitializeRequest } = require('@modelcontextprotocol/sdk/dist/cjs/types');
+const { McpServer } = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/mcp.js');
+const { StdioServerTransport } = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/stdio.js');
+const { StreamableHTTPServerTransport } = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/server/streamableHttp.js');
+const { CallToolRequestSchema, isInitializeRequest } = require('../node_modules/@modelcontextprotocol/sdk/dist/cjs/types.js');
 const { randomUUID } = require('crypto');
 const express = require('express');
 const { z } = require('zod');
@@ -13,7 +12,7 @@ const config = require('./config');
 
 // Create server instance based on transport mode
 async function createServer() {
-    const serverInstance = new Server({
+    const serverInstance = new McpServer({
         name: 'upguard_cyberrisk_mcp_server',
         version: '1.2.0',
         description: 'MCP server for interacting with the UpGuard CyberRisk API, providing comprehensive risk assessment and management capabilities.'
