@@ -585,8 +585,36 @@ class ApiDocumentationGenerator {
     }
     
     if (generateHtml) {
-      // Would integrate with tools like Redoc or Swagger UI
-      logger.info('HTML generation would require additional dependencies');
+      try {
+        // Import and use the HTML generation functions
+        const { generateSwaggerUI, generateRedoc, generateIndexPage } = require('../../scripts/generate-html-docs');
+        
+        const openApiPath = path.join(outputDir, 'openapi.json');
+        
+        // Read stats from extracted tools if available
+        const extractedToolsPath = path.resolve(outputDir, '../extracted-tools.json');
+        let stats = { totalTools: 67, totalCategories: 13, totalSchemas: 22, toolsWithSchemas: 54 };
+        
+        if (fs.existsSync(extractedToolsPath)) {
+          const extractedData = JSON.parse(fs.readFileSync(extractedToolsPath, 'utf8'));
+          stats = {
+            totalTools: extractedData.totalTools,
+            totalCategories: extractedData.categories?.length || 13,
+            totalSchemas: extractedData.totalSchemas,
+            toolsWithSchemas: extractedData.tools?.filter(t => t.inputSchema?.schemaReferences?.length > 0).length || 54
+          };
+        }
+        
+        // Generate HTML documentation
+        generateSwaggerUI(openApiPath, outputDir);
+        generateRedoc(openApiPath, outputDir);
+        generateIndexPage(outputDir, stats);
+        
+        logger.info('HTML documentation generated successfully');
+      } catch (error) {
+        logger.error('Failed to generate HTML documentation:', error.message);
+        logger.info('HTML generation requires the generate-html-docs script');
+      }
     }
   }
 }

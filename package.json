@@ -20,6 +20,18 @@
     "dev:watch": "nodemon --watch src --ext js,json src/index.js",
     "test:http-client": "node examples/http-client.js",
     "demo:http": "concurrently \"npm run start:http\" \"sleep 3 && npm run test:http-client\"",
+    "docs:generate": "node scripts/generate-docs.js",
+    "docs:clean": "rimraf docs/generated",
+    "docs:build": "npm run docs:clean && npm run docs:generate",
+    "docs:extract": "node scripts/extract-tools-direct.js",
+    "docs:build-real": "npm run docs:extract && npm run docs:clean && npm run docs:generate",
+    "docs:html": "node scripts/generate-html-docs.js",
+    "docs:full": "npm run docs:build-real && npm run docs:html",
+    "docs:test": "node scripts/test-docs.js",
+    "docs:export": "node scripts/export-docs.js",
+    "docs:complete": "npm run docs:full && npm run docs:export",
+    "docs:validate": "node scripts/validate-docs.js",
+    "docs:all": "npm run docs:complete && npm run docs:test && npm run docs:validate",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "lint:check": "eslint src/ --max-warnings 0",
@@ -65,7 +77,9 @@
     "lint-staged": "^15.0.0",
     "nodemon": "^3.0.0",
     "prettier": "^3.0.0",
-    "supertest": "^6.3.0"
+    "rimraf": "^5.0.10",
+    "supertest": "^6.3.0",
+    "swagger-ui-dist": "^5.22.0"
   },
   "resolutions": {
     "zod": "^3.23.8"
