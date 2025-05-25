@@ -20,6 +20,14 @@ module.exports = {
     ecmaVersion: 2022,
     sourceType: 'module'
   },
+  settings: {
+    node: {
+      allowModules: [
+        '@modelcontextprotocol/sdk'
+      ],
+      tryExtensions: ['.js', '.json', '.node']
+    }
+  },
   rules: {
     // Error Prevention
     'no-console': 'warn',
@@ -81,6 +89,12 @@ module.exports = {
     'jest/no-standalone-expect': 'warn' // Allow expect in beforeEach/afterEach
   },
   overrides: [
+    {
+      files: ['src/index.js', 'index.js', 'examples/**/*.js', 'src/**/__tests__/**/*.js'],
+      rules: {
+        'node/no-missing-require': 'off' // Disable for MCP SDK subpath imports that work at runtime
+      }
+    },
     {
       files: ['**/__tests__/**/*.js', '**/*.test.js', '**/*.spec.js'],
       env: {
