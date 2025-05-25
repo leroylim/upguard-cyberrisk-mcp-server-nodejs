@@ -83,8 +83,8 @@ A production-ready Model Context Protocol (MCP) server for interacting with the 
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd cyberrisk-upguard-mcp-server
+git clone https://github.com/leroylim/upguard-cyberrisk-mcp-server-nodejs.git
+cd upguard-cyberrisk-mcp-server-nodejs
 ```
 
 2. Install dependencies:
@@ -235,41 +235,18 @@ npm run metrics
 
 ```
 cyberrisk-upguard-mcp-server/
-├── src/                 # Source code
-│   ├── api/             # API client modules with caching
-│   ├── tools/           # MCP tool definitions
-│   │   ├── schemas/     # Centralized validation schemas
-│   │   │   ├── index.js # Schema definitions
-│   │   │   ├── documentation.md    # Usage guidelines
-│   │   │   └── swagger-compliance-guide.md  # Implementation details
-│   │   ├── vendors.js   # Vendor management tools
-│   │   ├── risks.js     # Risk assessment tools
-│   │   └── questionnaires.js # Security questionnaire tools
-│   ├── utils/           # Utility functions (retry, cache, health)
-│   ├── config/          # Configuration management
-│   ├── security/        # Security-related modules
-│   └── __tests__/       # Jest test files
-├── docs/                # 📚 Documentation (organized)
-│   ├── readme.md        # Documentation index
-│   ├── quick-start.md   # Quick setup guide
-│   ├── implementation-guide.md # Detailed implementation
-│   ├── testing-guide.md # Testing framework
-│   ├── api-examples.md  # API usage examples
-│   └── ...              # Additional documentation
-├── scripts/             # 🚀 Utility scripts (organized)
-│   ├── readme.md        # Scripts documentation
-│   ├── start-stdio.sh   # Unix stdio mode
-│   ├── start-http.sh    # Unix HTTP mode
-│   ├── start-stdio.ps1  # Windows stdio mode
-│   └── start-http.ps1   # Windows HTTP mode
-├── examples/            # Usage examples
-├── .github/             # CI/CD workflows
-├── coverage/            # Test coverage reports
-├── logs/                # Application logs
-├── docker-compose.yml   # Container orchestration
-├── Dockerfile           # Multi-stage container build
-├── package.json         # Dependencies and scripts
-└── README.md            # This file
+├── src/                    # Source code
+│   ├── api/               # API client modules
+│   ├── tools/             # MCP tool implementations
+│   ├── utils/             # Utility modules (cache, retry, health)
+│   ├── config/            # Configuration management
+│   ├── security/          # Security framework
+│   └── index.js           # Main server entry point
+├── docs/                  # Documentation
+├── examples/              # Usage examples
+├── tests/                 # Test files
+├── docker/                # Docker configuration
+└── .github/               # CI/CD workflows
 ```
 
 ### Schema Architecture & Validation

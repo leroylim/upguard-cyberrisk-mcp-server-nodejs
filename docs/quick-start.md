@@ -15,8 +15,8 @@ The UpGuard CyberRisk MCP Server provides seamless integration with the UpGuard 
 ### 1. Clone and Install
 
 ```bash
-git clone <repository-url>
-cd cyberrisk-upguard-mcp-server
+git clone https://github.com/leroylim/upguard-cyberrisk-mcp-server-nodejs.git
+cd upguard-cyberrisk-mcp-server-nodejs
 npm install
 ```
 
@@ -65,7 +65,7 @@ Add the server to your Claude Desktop configuration file:
   "mcpServers": {
     "upguard-cyberrisk": {
       "command": "node",
-      "args": ["C:/path/to/cyberrisk-upguard-mcp-server/src/index.js"],
+      "args": ["C:/path/to/upguard-cyberrisk-mcp-server-nodejs/src/index.js"],
       "env": {
         "UPGUARD_API_KEY": "your_api_key_here",
         "UPGUARD_API_SECRET": "your_api_secret_here",
