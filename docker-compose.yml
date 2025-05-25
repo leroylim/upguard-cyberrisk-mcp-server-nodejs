@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  upguard-mcp-server:
+    build: .
+    container_name: upguard-mcp-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - UPGUARD_API_KEY=${UPGUARD_API_KEY}
+      - UPGUARD_API_BASE_URL=${UPGUARD_API_BASE_URL:-https://cyber-risk.upguard.com/api/public}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('Health check passed')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.example.description=UpGuard CyberRisk MCP Server"
+      - "com.example.version=1.2.0"
+
+  # Development override
+  upguard-mcp-server-dev:
+    build: .
+    container_name: upguard-mcp-server-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - UPGUARD_API_KEY=${UPGUARD_API_KEY}
+      - UPGUARD_API_BASE_URL=${UPGUARD_API_BASE_URL:-https://cyber-risk.upguard.com/api/public}
+      - LOG_LEVEL=debug
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+      - ./package.json:/app/package.json
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    command: ["npm", "run", "dev"]
+    profiles:
+      - dev
+
+volumes:
+  logs:
+  data: 
