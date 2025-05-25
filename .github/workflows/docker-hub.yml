@@ -1,15 +1,26 @@
-name: Build and Push to Docker Hub
+name: Build and Push to Docker Hub (DISABLED)
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  # Disabled - requires DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets
+  # push:
+  #   branches: [ main ]
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    if: false  # Disable this job
     
     steps:
+    - name: Info
+      run: |
+        echo "This workflow is disabled because Docker Hub secrets are not configured."
+        echo "To enable:"
+        echo "1. Create Docker Hub account"
+        echo "2. Generate access token"
+        echo "3. Add DOCKERHUB_USERNAME and DOCKERHUB_TOKEN to repository secrets"
+        echo "4. Remove 'if: false' condition from this job"
+
     - name: Checkout
       uses: actions/checkout@v4
 
