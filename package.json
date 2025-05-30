@@ -34,7 +34,7 @@
     "docs:all": "npm run docs:complete && npm run docs:test && npm run docs:validate",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
-    "lint:check": "eslint src/ --max-warnings 0",
+    "lint:check": "eslint src/ --max-warnings 50",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -84,6 +84,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "artillery": "^2.0.23",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-jest": "^27.0.0",

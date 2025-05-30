@@ -521,7 +521,7 @@ ${args.reportDeepDive ? `**Step 4: Detailed Reporting**
 - Get sample webhook data using 'upguard_get_webhook_sample_data'
 
 **Step 2: Webhook Configuration**
-${Object.entries(args.notificationChannels).filter(([k,v]) => v).map(([team, url]) => 
+${Object.entries(args.notificationChannels).filter(([_k,v]) => v).map(([team, url]) => 
 `- Create ${team.replace('_', ' ')} webhook using 'upguard_create_webhook' for ${url}`
 ).join('\n')}
 
@@ -611,7 +611,7 @@ ${args.customLabelsFilter ? `**Step 3: Custom Filtering**
         'upguard_get_my_organization_details',
         {},
         () => ({
-            messages: [{ role: 'user', content: { type: 'text', text: `Please retrieve my organization's details, including name, primary hostname, and overall security score, using 'upguard_get_organisation'.` } }]
+            messages: [{ role: 'user', content: { type: 'text', text: 'Please retrieve my organization\'s details, including name, primary hostname, and overall security score, using \'upguard_get_organisation\'.' } }]
         })
     );
 
@@ -619,7 +619,7 @@ ${args.customLabelsFilter ? `**Step 3: Custom Filtering**
     serverInstance.prompt(
         'upguard_check_domain_risks',
         {
-            domainName: z.string().describe("The domain name to check for risks.")
+            domainName: z.string().describe('The domain name to check for risks.')
         },
         ({ domainName }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
@@ -634,7 +634,7 @@ Summarize the current security posture, listing key risks from step 1, and any r
     serverInstance.prompt(
         'upguard_list_vendors_with_critical_risks',
         {
-            minSeverity: z.enum(["info", "low", "medium", "high", "critical"]).default("critical").describe("Minimum risk severity to filter for.")
+            minSeverity: z.enum(['info', 'low', 'medium', 'high', 'critical']).default('critical').describe('Minimum risk severity to filter for.')
         },
         ({ minSeverity }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
@@ -651,7 +651,7 @@ Present the list clearly.`
     serverInstance.prompt(
         'upguard_full_vendor_risk_profile',
         {
-            vendorHostnameOrId: z.string().describe("The primary hostname OR Upguard ID of the vendor."),
+            vendorHostnameOrId: z.string().describe('The primary hostname OR Upguard ID of the vendor.')
         },
         ({ vendorHostnameOrId }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
@@ -669,13 +669,13 @@ Generate a comprehensive risk profile for vendor identified by '${vendorHostname
     serverInstance.prompt(
         'upguard_monitor_new_vendor_and_send_questionnaire',
         {
-            vendorHostname: z.string().describe("The primary hostname of the new vendor to monitor."),
-            vendorTier: z.number().int().optional().describe("Tier to assign to the vendor (e.g., 1, 2, 3)."),
+            vendorHostname: z.string().describe('The primary hostname of the new vendor to monitor.'),
+            vendorTier: z.number().int().optional().describe('Tier to assign to the vendor (e.g., 1, 2, 3).'),
             vendorLabels: z.array(z.string()).optional().describe("Labels to assign to the vendor (e.g., ['critical', 'cloud_provider'])."),
-            questionnaireTypeName: z.string().default("Standard Security Questionnaire").describe("Name of the questionnaire type to send."),
-            contactEmail: z.string().email().describe("Email address of the vendor contact for the questionnaire."),
-            dueDateYYYYMMDD: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD").describe("Due date for the questionnaire in YYYY-MM-DD format."),
-            senderEmail: z.string().email().describe("Your email address (as an UpGuard user) sending the questionnaire."),
+            questionnaireTypeName: z.string().default('Standard Security Questionnaire').describe('Name of the questionnaire type to send.'),
+            contactEmail: z.string().email().describe('Email address of the vendor contact for the questionnaire.'),
+            dueDateYYYYMMDD: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD').describe('Due date for the questionnaire in YYYY-MM-DD format.'),
+            senderEmail: z.string().email().describe('Your email address (as an UpGuard user) sending the questionnaire.')
         },
         ({ vendorHostname, vendorTier, vendorLabels, questionnaireTypeName, contactEmail, dueDateYYYYMMDD, senderEmail }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
@@ -701,7 +701,7 @@ Onboard a new vendor '${vendorHostname}' and send them a questionnaire.
     serverInstance.prompt(
         'upguard_investigate_identity_breach_for_domain',
         {
-            domainName: z.string().describe("The domain name to investigate for breached identities."),
+            domainName: z.string().describe('The domain name to investigate for breached identities.')
         },
         ({ domainName }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
@@ -718,12 +718,12 @@ Investigate identity breaches related to the domain '${domainName}'.
     serverInstance.prompt(
         'upguard_generate_vendor_report_and_track',
         {
-            vendorHostname: z.string().describe("Primary hostname of the vendor for the report."),
+            vendorHostname: z.string().describe('Primary hostname of the vendor for the report.'),
             reportType: z.enum([
-                "VendorSummaryPDF", "VendorDetailedPDF", "VendorRiskAssessmentPDF",
-                "VendorRiskProfileXLSX", "VendorVulnsOverviewXLSX", "VendorDomainListPDF"
-            ]).default("VendorDetailedPDF").describe("Type of vendor report to generate."),
-            userEmailForNotification: z.string().email().optional().describe("Your email to receive the report upon completion."),
+                'VendorSummaryPDF', 'VendorDetailedPDF', 'VendorRiskAssessmentPDF',
+                'VendorRiskProfileXLSX', 'VendorVulnsOverviewXLSX', 'VendorDomainListPDF'
+            ]).default('VendorDetailedPDF').describe('Type of vendor report to generate.'),
+            userEmailForNotification: z.string().email().optional().describe('Your email to receive the report upon completion.')
         },
         ({ vendorHostname, reportType, userEmailForNotification }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
@@ -743,7 +743,7 @@ Generate a '${reportType}' report for vendor '${vendorHostname}' and explain how
     serverInstance.prompt(
         'upguard_review_typosquatting_for_domain',
         {
-            domainName: z.string().describe("The domain to review for typosquatting activity."),
+            domainName: z.string().describe('The domain to review for typosquatting activity.')
         },
         ({ domainName }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
@@ -760,13 +760,13 @@ Review typosquatting information for the domain '${domainName}'.
     serverInstance.prompt(
         'upguard_manage_bulk_hostnames_simple',
         {
-            hostnamesToAdd: z.array(z.string()).min(1).max(5).describe("A small list of hostnames (FQDN or IPv4) to register."),
-            labelsForNewHostnames: z.array(z.string()).optional().describe("Labels to apply to the new hostnames."),
-            hostnameToRemove: z.string().describe("One of the hostnames from the 'hostnamesToAdd' list to subsequently deregister."),
+            hostnamesToAdd: z.array(z.string()).min(1).max(5).describe('A small list of hostnames (FQDN or IPv4) to register.'),
+            labelsForNewHostnames: z.array(z.string()).optional().describe('Labels to apply to the new hostnames.'),
+            hostnameToRemove: z.string().describe("One of the hostnames from the 'hostnamesToAdd' list to subsequently deregister.")
         },
         ({ hostnamesToAdd, labelsForNewHostnames, hostnameToRemove }) => {
             if (!hostnamesToAdd.includes(hostnameToRemove)) {
-                logger.warn("Prompt Warning: hostnameToRemove should be one of the hostnamesToAdd for logical consistency.");
+                logger.warn('Prompt Warning: hostnameToRemove should be one of the hostnamesToAdd for logical consistency.');
             }
             return {
                 messages: [{ role: 'user', content: { type: 'text', text: `
@@ -809,7 +809,7 @@ Present this as an executive-ready dashboard summary.` } }]
     serverInstance.prompt(
         'upguard_risk_trend_analysis_original',
         {
-            daysBack: z.number().int().min(1).max(365).default(30).describe("Number of days to analyze for risk trends (1-365 days).")
+            daysBack: z.number().int().min(1).max(365).default(30).describe('Number of days to analyze for risk trends (1-365 days).')
         },
         ({ daysBack }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
@@ -932,7 +932,7 @@ Present as a formal monthly report suitable for management review.` } }]
     serverInstance.prompt(
         'upguard_risk_mitigation_planning',
         {
-            riskSeverityFocus: z.enum(["critical", "high", "medium", "low", "info"]).default("high").describe("Minimum risk severity level to focus mitigation planning on.")
+            riskSeverityFocus: z.enum(['critical', 'high', 'medium', 'low', 'info']).default('high').describe('Minimum risk severity level to focus mitigation planning on.')
         },
         ({ riskSeverityFocus }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
