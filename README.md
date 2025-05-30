@@ -5,11 +5,40 @@ A Model Context Protocol (MCP) server for integrating with UpGuard's CyberRisk A
 ## Features
 
 - **67 API Tools** across 13 categories for comprehensive security management
+- **14 Enhanced Prompts** including 8 advanced workflow prompts for complex operations
 - **Real-time Risk Assessment** with vendor monitoring and breach detection
 - **Automated Documentation Generation** with multiple output formats
 - **Interactive API Explorer** with Swagger UI and Redoc interfaces
 - **Comprehensive Schema Validation** with 22 Zod schema definitions
 - **CI/CD Integration** with automated documentation deployment
+
+## Enhanced Prompts (New in v1.3.0)
+
+The server now includes **14 comprehensive prompts** (6 original + 8 enhanced) that provide guided workflows for complex security operations:
+
+### 🔴 **Risk Management Prompts**
+- `upguard_comprehensive_risk_assessment` - Complete risk assessment workflows
+- `upguard_risk_trend_analysis` - Multi-period risk trend analysis
+
+### 📊 **Compliance & Reporting**
+- `upguard_compliance_reporting_suite` - Automated compliance report generation
+
+### 🌐 **Asset Management**
+- `upguard_domain_lifecycle_management` - Complete domain lifecycle workflows
+- `upguard_bulk_asset_management` - Large-scale asset management operations
+- `upguard_network_security_assessment` - Comprehensive network security analysis
+
+### 🪝 **Operations & Monitoring**
+- `upguard_setup_comprehensive_alerting` - Complete alerting infrastructure setup
+- `upguard_security_dashboard_setup` - Role-based security dashboard configuration
+
+**Benefits:**
+- **Step-by-step guidance** for complex security workflows
+- **Multi-tool orchestration** combining multiple API endpoints
+- **Role-based workflows** for different stakeholders (CISO, analysts, compliance)
+- **Best practices integration** with built-in security recommendations
+
+📖 **See [ENHANCED_PROMPTS.md](./ENHANCED_PROMPTS.md) for detailed documentation and examples.**
 
 ## Quick Start
 
@@ -41,6 +70,76 @@ UPGUARD_SECRET_TOKEN=your_secret_token_here
 ```bash
 npm start
 ```
+
+## MCP Configuration
+
+To use this server with Claude Desktop or other MCP-compatible clients, you need to add it to your MCP configuration file.
+
+### For Claude Desktop (Windows/Mac/Linux)
+
+Add the following configuration to your `claude_desktop_config.json` file:
+
+**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+**Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Linux:** `~/.config/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "upguard-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/your/upguard-cyberrisk-mcp-server/src/index.js"
+      ],
+      "env": {
+        "UPGUARD_API_KEY": "your_upguard_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### For Cursor IDE
+
+Add the following configuration to your `mcp.json` file in your Cursor settings directory:
+
+**Windows:** `%APPDATA%\Cursor\User\mcp.json`
+**Mac:** `~/Library/Application Support/Cursor/User/mcp.json`  
+**Linux:** `~/.config/Cursor/User/mcp.json`
+
+```json
+{
+  "mcpServers": {
+    "upguard-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/your/upguard-cyberrisk-mcp-server/src/index.js"
+      ],
+      "env": {
+        "UPGUARD_API_KEY": "your_upguard_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Configuration Notes
+
+- **Replace the path**: Update `/path/to/your/upguard-cyberrisk-mcp-server/src/index.js` with the actual path to your installation
+- **Replace the API key**: Update `your_upguard_api_key_here` with your actual UpGuard API key
+- **Server name**: You can change `upguard-mcp` to any name you prefer
+- **Additional environment variables**: If you're using `UPGUARD_SECRET_TOKEN`, add it to the `env` section as well
+
+### Getting Your UpGuard API Key
+
+1. Log in to your UpGuard account
+2. Navigate to **Settings** → **API Keys**
+3. Create a new API key or use an existing one
+4. Copy the key and paste it into your configuration
+
+### Restart Required
+
+After updating your MCP configuration, restart Claude Desktop or your IDE for the changes to take effect.
 
 ## Documentation System
 

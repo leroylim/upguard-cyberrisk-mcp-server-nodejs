@@ -5,6 +5,51 @@ All notable changes to the UpGuard CyberRisk MCP Server will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2024-12-20
+
+### 🚀 Major Feature Addition: Enhanced Prompts
+
+Added **8 comprehensive enhanced prompts** that provide guided workflows for complex security operations, bringing the total to **14 prompts** (6 original + 8 enhanced).
+
+#### ✨ New Enhanced Prompts
+
+**Risk Management:**
+- `upguard_comprehensive_risk_assessment` - Complete risk assessment with historical analysis
+- `upguard_risk_trend_analysis` - Multi-period risk trend analysis and comparison
+
+**Compliance & Reporting:**
+- `upguard_compliance_reporting_suite` - Automated compliance reporting for multiple stakeholders
+
+**Asset Management:**
+- `upguard_domain_lifecycle_management` - Complete domain lifecycle workflows (onboard/offboard/audit)
+- `upguard_bulk_asset_management` - Large-scale asset management operations
+- `upguard_network_security_assessment` - Comprehensive network security analysis
+
+**Operations & Monitoring:**
+- `upguard_setup_comprehensive_alerting` - Complete alerting infrastructure setup
+- `upguard_security_dashboard_setup` - Role-based security dashboard configuration
+
+#### 🎯 Enhanced Capabilities
+
+- **Multi-tool orchestration** combining multiple API endpoints in guided workflows
+- **Role-based guidance** for different stakeholders (CISOs, security analysts, compliance officers)
+- **Step-by-step instructions** for complex security operations
+- **Best practices integration** with built-in security recommendations
+- **Parameter validation** with comprehensive Zod schemas
+- **Flexible configuration** supporting various organizational structures
+
+#### 📖 Documentation
+
+- Added comprehensive `ENHANCED_PROMPTS.md` documentation
+- Updated README.md with enhanced prompts overview
+- Included usage examples and best practices
+
+### 🔧 Improvements
+
+- Enhanced parameter descriptions and validation
+- Improved error handling in template literals
+- Updated version numbering across all components
+
 ## [1.2.0] - 2024-12-19
 
 ### Added

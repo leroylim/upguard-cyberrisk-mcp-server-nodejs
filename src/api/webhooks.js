@@ -14,7 +14,7 @@ async function listWebhooks() {
  * @returns {Promise<object>} Created webhook
  */
 async function createWebhook(params) {
-    return post('/webhooks', params);
+    return post('/webhooks', null, params);
 }
 
 /**
