@@ -132,10 +132,35 @@ Add the following configuration to your `mcp.json` file in your Cursor settings 
 
 ### Getting Your UpGuard API Key
 
-1. Log in to your UpGuard account
-2. Navigate to **Settings** → **API Keys**
-3. Create a new API key or use an existing one
-4. Copy the key and paste it into your configuration
+**Prerequisites:**
+- An UpGuard account with administrator access (only administrators can access API tokens)
+- Access to the UpGuard platform at [cyber-risk.upguard.com](https://cyber-risk.upguard.com)
+
+**Step-by-step instructions:**
+
+1. **Log in to your UpGuard account** at [https://cyber-risk.upguard.com](https://cyber-risk.upguard.com)
+2. **Click the Settings icon** in UpGuard's top-right corner
+3. **Navigate to the API tab** in the settings menu
+4. **Create or manage API keys:**
+   - Any existing API keys will be listed here
+   - Click **"Create new API key"** to generate a new key
+   - You can also delete existing keys from this tab if needed
+5. **Copy your API key** - it will be an alphanumeric string
+6. **Paste the key** into your MCP configuration file
+
+**Testing your API key (optional):**
+You can verify your API key works by testing it with curl:
+```bash
+curl -H "Authorization: YOUR_API_KEY" "https://cyber-risk.upguard.com/api/public/vendors"
+```
+
+**Security Notes:**
+- Keep your API key secure and don't share it publicly
+- Only administrators can create and manage API keys
+- You can create multiple API keys and delete them as needed
+- The API base URL is: `https://cyber-risk.upguard.com/api/public`
+
+For more detailed information, see the [official UpGuard API authentication guide](https://help.upguard.com/en/articles/8060003-how-to-authenticate-with-your-upguard-api-key).
 
 ### Restart Required
 
