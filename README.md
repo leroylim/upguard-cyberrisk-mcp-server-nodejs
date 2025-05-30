@@ -355,4 +355,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**UpGuard CyberRisk MCP Server** v1.2.0 | Licensed under MIT | [View Documentation](docs/generated/index.html) 
+**UpGuard CyberRisk MCP Server** v1.3.0 | Licensed under MIT | [View Documentation](docs/generated/index.html) 

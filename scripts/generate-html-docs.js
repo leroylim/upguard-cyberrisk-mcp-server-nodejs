@@ -434,7 +434,7 @@ function generateIndexPage(outputDir, stats) {
     </div>
     
     <div class="footer">
-        <p><strong>UpGuard CyberRisk MCP Server</strong> v1.2.0</p>
+        <p><strong>UpGuard CyberRisk MCP Server</strong> v1.3.0</p>
         <p>Licensed under <strong>MIT License</strong></p>
         <p><a href="https://github.com/leroylim/upguard-cyberrisk-mcp-server-nodejs">View on GitHub</a> | 
            <a href="https://github.com/leroylim/upguard-cyberrisk-mcp-server-nodejs/issues">Report Issues</a></p>
