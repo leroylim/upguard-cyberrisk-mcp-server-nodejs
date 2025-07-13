@@ -1,0 +1,161 @@
+openapi: 3.0.0
+info:
+  title: UpGuard CyberRisk MCP Server
+  description: MCP server for interacting with the UpGuard CyberRisk API
+  version: 1.3.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /mcp:
+    post:
+      summary: Send an MCP request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jsonrpc:
+                  type: string
+                  example: '2.0'
+                method:
+                  type: string
+                  example: upguard_get_available_risks
+                params:
+                  type: object
+                id:
+                  type: string
+                  example: '1'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jsonrpc:
+                    type: string
+                    example: '2.0'
+                  result:
+                    type: object
+                  id:
+                    type: string
+                    example: '1'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    Severity:
+      type: string
+      enum:
+        - info
+        - low
+        - medium
+        - high
+        - critical
+    Risk:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        severity:
+          $ref: '#/components/schemas/Severity'
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        hostname:
+          type: string
+    Domain:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    IP:
+      type: object
+      properties:
+        id:
+          type: string
+        ip:
+          type: string
+    Breach:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Subsidiary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Typosquat:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Questionnaire:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Vulnerability:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Label:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
