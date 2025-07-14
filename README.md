@@ -5,7 +5,7 @@ A Model Context Protocol (MCP) server for integrating with UpGuard's CyberRisk A
 ## Features
 
 - **67 API Tools** across 13 categories for comprehensive security management
-- **14 Enhanced Prompts** including 8 advanced workflow prompts for complex operations
+- **25 Comprehensive Prompts** including 8 advanced workflow prompts for complex operations
 - **Real-time Risk Assessment** with vendor monitoring and breach detection
 - **Automated Documentation Generation** with multiple output formats
 - **Interactive API Explorer** with Swagger UI and Redoc interfaces
@@ -14,11 +14,19 @@ A Model Context Protocol (MCP) server for integrating with UpGuard's CyberRisk A
 
 ## Enhanced Prompts (New in v1.3.0)
 
-The server now includes **14 comprehensive prompts** (6 original + 8 enhanced) that provide guided workflows for complex security operations:
+The server now includes **25 comprehensive prompts** (8 enhanced + 17 existing) that provide guided workflows for complex security operations:
 
 ### 🔴 **Risk Management Prompts**
 - `upguard_comprehensive_risk_assessment` - Complete risk assessment workflows
 - `upguard_risk_trend_analysis` - Multi-period risk trend analysis
+- `upguard_account_risk_dashboard`: Create a risk dashboard for your account.
+- `upguard_risk_trend_analysis_original`: Analyze risk trends over a given period.
+- `upguard_risk_severity_analysis`: Analyze risks by severity.
+- `upguard_critical_risk_prioritization`: Prioritize critical risks.
+- `upguard_risk_type_analysis`: Analyze risks by type.
+- `upguard_monthly_risk_report`: Generate a monthly risk report.
+- `upguard_risk_mitigation_planning`: Create a risk mitigation plan.
+- `upguard_executive_risk_summary`: Create an executive-level risk summary.
 
 ### 📊 **Compliance & Reporting**
 - `upguard_compliance_reporting_suite` - Automated compliance report generation
@@ -27,10 +35,28 @@ The server now includes **14 comprehensive prompts** (6 original + 8 enhanced) t
 - `upguard_domain_lifecycle_management` - Complete domain lifecycle workflows
 - `upguard_bulk_asset_management` - Large-scale asset management operations
 - `upguard_network_security_assessment` - Comprehensive network security analysis
+- `upguard_check_domain_risks`: Check the risks for a specific domain.
+- `upguard_review_typosquatting_for_domain`: Review typosquatting information for a domain.
+- `upguard_manage_bulk_hostnames_simple`: A simple workflow to add and remove hostnames in bulk.
 
 ### 🪝 **Operations & Monitoring**
 - `upguard_setup_comprehensive_alerting` - Complete alerting infrastructure setup
 - `upguard_security_dashboard_setup` - Role-based security dashboard configuration
+
+### 🏢 **Vendor & Organization Prompts**
+- `upguard_get_my_organization_risks`: Get a list of all risks for your organization.
+- `upguard_monitor_new_vendor`: Start monitoring a new vendor.
+- `upguard_assess_vendor_risks`: Perform a risk assessment for a specific vendor.
+- `upguard_get_my_organization_details`: Retrieve your organization's details.
+- `upguard_list_vendors_with_critical_risks`: List all vendors with critical risks.
+- `upguard_full_vendor_risk_profile`: Get a full risk profile for a vendor.
+- `upguard_monitor_new_vendor_and_send_questionnaire`: Monitor a new vendor and send them a questionnaire.
+
+### 🚨 **Breach & Report Prompts**
+- `upguard_investigate_breaches`: Investigate breaches for a specific domain.
+- `upguard_generate_report`: Generate a report.
+- `upguard_investigate_identity_breach_for_domain`: Investigate identity breaches for a domain.
+- `upguard_generate_vendor_report_and_track`: Generate a vendor report and track its status.
 
 **Benefits:**
 - **Step-by-step guidance** for complex security workflows

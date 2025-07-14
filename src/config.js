@@ -39,7 +39,7 @@ const config = {
         http: {
             port: parseInt(process.env.MCP_HTTP_PORT, 10) || 3000,
             host: process.env.MCP_HTTP_HOST || 'localhost',
-            sessionManagement: process.env.MCP_SESSION_MANAGEMENT === 'true' || false
+            sessionManagement: (process.env.MCP_SESSION_MANAGEMENT || 'true') === 'true'
         }
     },
     cache: {
