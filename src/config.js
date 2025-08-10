@@ -30,9 +30,11 @@ dotenv.config();
 
 const config = {
     api: {
-        baseUrl: process.env.UPGUARD_API_URL || 'https://cyber-risk.upguard.com/api/public',
+        // Single canonical env var for API base URL
+        baseUrl: process.env.UPGUARD_API_BASE_URL || 'https://cyber-risk.upguard.com/api/public',
         key: process.env.UPGUARD_API_KEY,
-        timeout: parseInt(process.env.UPGUARD_REQUEST_TIMEOUT, 10) || 120000
+        // Single canonical env var for API timeout (ms)
+        timeout: parseInt(process.env.UPGUARD_API_TIMEOUT || '120000', 10)
     },
     transport: {
         mode: process.env.MCP_TRANSPORT_MODE || 'stdio', // 'stdio' or 'http'

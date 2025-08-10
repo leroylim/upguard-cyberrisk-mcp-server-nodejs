@@ -15,7 +15,8 @@ async function getVendorDetails(params) {
  * @returns {Promise<object>} Vendor additional evidence
  */
 async function getVendorAdditionalEvidence(params) {
-    return get('/vendor/additional_evidence', params);
+    // Returns binary content depending on request; allow arraybuffer
+    return get('/vendor/additionalevidence', params, { responseType: 'arraybuffer' });
 }
 
 /**
@@ -24,7 +25,7 @@ async function getVendorAdditionalEvidence(params) {
  * @returns {Promise<object>} List of vendor additional evidence
  */
 async function listVendorAdditionalEvidence(params) {
-    return get('/vendor/additional_evidences', params);
+    return get('/vendor/additionalevidence/list', params);
 }
 
 /**
@@ -42,7 +43,7 @@ async function updateVendorAttributes(body) {
  * @returns {Promise<object>} Vendor document
  */
 async function getVendorDocument(params) {
-    return get('/vendor/document', params);
+    return get('/vendor/document', params, { responseType: 'arraybuffer' });
 }
 
 /**

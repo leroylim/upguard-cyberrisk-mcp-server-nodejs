@@ -2,7 +2,7 @@
 
 // Mock environment variables for testing
 process.env.UPGUARD_API_KEY = process.env.UPGUARD_API_KEY || 'test-api-key-for-testing';
-process.env.UPGUARD_API_URL = process.env.UPGUARD_API_URL || 'https://cyber-risk.upguard.com/api/public';
+process.env.UPGUARD_API_BASE_URL = process.env.UPGUARD_API_BASE_URL || 'https://cyber-risk.upguard.com/api/public';
 process.env.NODE_ENV = 'test';
 process.env.LOG_LEVEL = 'error';
 

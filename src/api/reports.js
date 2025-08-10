@@ -26,18 +26,9 @@ async function getReportExportStatus(params) {
     return get('/reports/status', params);
 }
 
-/**
- * Request report from queue
- * @param {object} params Parameters including report_type
- * @returns {Promise<object>} Report request response
- */
-async function requestReport(params) {
-    return get('/reports/queue', params);
-}
 
 module.exports = {
     listCustomReportTemplates,
     queueReportExport,
-    getReportExportStatus,
-    requestReport
+    getReportExportStatus
 }; 

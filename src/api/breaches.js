@@ -1,4 +1,4 @@
-const { get } = require('./client');
+const { get, put } = require('./client');
 
 /**
  * Get identity breach details
@@ -24,7 +24,7 @@ async function getBreachedIdentities(params) {
  * @returns {Promise<object>} Data leaks disclosures
  */
 async function getDataLeaksDisclosures(params) {
-    return await get('/data_leaks_disclosures', params);
+    return await get('/dataleaks/disclosures', params);
 }
 
 /**
@@ -33,7 +33,7 @@ async function getDataLeaksDisclosures(params) {
  * @returns {Promise<object>} Updated disclosure
  */
 async function updateDataLeaksDisclosureStatus(params) {
-    return await get('/data_leaks_disclosures/status', params);
+    return await put('/dataleaks/disclosures/status', params);
 }
 
 module.exports = {

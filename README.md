@@ -88,7 +88,6 @@ Create a `.env` file with your UpGuard credentials:
 
 ```env
 UPGUARD_API_KEY=your_api_key_here
-UPGUARD_SECRET_TOKEN=your_secret_token_here
 ```
 
 ### Running the Server
@@ -154,7 +153,7 @@ Add the following configuration to your `mcp.json` file in your Cursor settings 
 - **Replace the path**: Update `/path/to/your/upguard-cyberrisk-mcp-server/src/index.js` with the actual path to your installation
 - **Replace the API key**: Update `your_upguard_api_key_here` with your actual UpGuard API key
 - **Server name**: You can change `upguard-mcp` to any name you prefer
-- **Additional environment variables**: If you're using `UPGUARD_SECRET_TOKEN`, add it to the `env` section as well
+
 
 ### Getting Your UpGuard API Key
 

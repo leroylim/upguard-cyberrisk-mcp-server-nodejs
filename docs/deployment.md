@@ -7,7 +7,7 @@ This document provides a detailed, step-by-step guide for deploying the UpGuard 
 Before you can deploy the application, you will need the following:
 
 *   A server with Node.js 18+ installed.
-*   An UpGuard CyberRisk API key and secret token.
+*   An UpGuard CyberRisk API key.
 *   A domain name for the application (optional).
 
 ## 2. Configuration
@@ -15,7 +15,6 @@ Before you can deploy the application, you will need the following:
 The application is configured through environment variables. The following environment variables are required:
 
 *   `UPGUARD_API_KEY`: Your UpGuard API key.
-*   `UPGUARD_SECRET_TOKEN`: Your UpGuard secret token.
 
 The following environment variables are optional:
 
@@ -43,7 +42,6 @@ docker run -d \
   --name upguard-mcp-server \
   -p 3000:3000 \
   -e UPGUARD_API_KEY=<your_api_key> \
-  -e UPGUARD_SECRET_TOKEN=<your_secret_token> \
   upguard-mcp-server
 ```
 
@@ -62,7 +60,6 @@ Restart=always
 User=nobody
 Group=nogroup
 Environment=UPGUARD_API_KEY=<your_api_key>
-Environment=UPGUARD_SECRET_TOKEN=<your_secret_token>
 
 [Install]
 WantedBy=multi-user.target

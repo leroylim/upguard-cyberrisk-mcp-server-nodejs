@@ -8,11 +8,13 @@ function registerTools(server) {
         'upguard_get_domains',
         'Get a list of domains for your account with filtering and pagination options',
         {
-            labels: schemas.labels.optional().describe('Filter results to only include domains that have all the specified labels assigned'),
-            page_token: z.string().optional().describe('Pagination token from a previous request to get the next page of results'),
-            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('Number of domains to return per page (10-2000, defaults to 1000)'),
-            sort_by: z.enum(['hostname', 'owner', 'country', 'automated_score']).optional().default('hostname').describe('Sort domains by. Options: "hostname" (domain name), "owner" (organization that owns the domain), "country" (country code where registered), "automated_score" (security score). Default: "hostname"'),
-            sort_desc: z.boolean().optional().default(false).describe('Sort in descending order (true) or ascending order (false, default)')
+            active: z.boolean().optional().default(true).describe('Retrieve active domains'),
+            inactive: z.boolean().optional().default(true).describe('Retrieve inactive domains'),
+            labels: z.array(z.string()).optional().describe('Filter result by the provided labels'),
+            page_token: z.string().optional().describe('The page_token from a previous request, use this to get the next page of results'),
+            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page'),
+            sort_by: z.enum(['domain', 'active', 'automated_score', 'scanned_at']).optional().default('domain').describe('The value to sort the domains by'),
+            sort_desc: z.boolean().optional().default(false).describe('Whether or not to sort the results in descending order')
         },
         async (params) => {
             try {

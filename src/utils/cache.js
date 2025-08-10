@@ -228,13 +228,15 @@ const vendorsCache = new APICache({
 
 // Graceful shutdown - only attach in non-test environments
 if (process.env.NODE_ENV !== 'test') {
-    process.on('SIGINT', () => {
-        logger.debug('Destroying caches...');
+    const shutdown = (signal) => {
+        logger.debug(`Destroying caches on ${signal}...`);
         generalCache.destroy();
         apiCache.destroy();
         risksCache.destroy();
         vendorsCache.destroy();
-    });
+    };
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
 module.exports = {

@@ -151,9 +151,10 @@ const schemas = {
         .min(1, 'Questionnaire ID cannot be empty')
         .describe('Unique identifier for a questionnaire.'), 'questionnaireId'),
 
-    vendorId: validateSchema(z.string()
-        .min(1, 'Vendor ID cannot be empty')
-        .describe('Unique identifier for a vendor.'), 'vendorId'),
+    vendorId: validateSchema(z.number()
+        .int('Vendor ID must be an integer')
+        .nonnegative('Vendor ID must be non-negative')
+        .describe('Unique numeric identifier for a vendor.'), 'vendorId'),
 
     // Email validation - commonly used across tools
     email: validateSchema(z.string()

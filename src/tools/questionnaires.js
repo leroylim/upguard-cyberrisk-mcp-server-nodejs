@@ -45,8 +45,8 @@ function registerTools(server) {
         'upguard_get_vendor_questionnaires_v2',
         'List vendor questionnaires (V2)',
         {
-                hostname: schemas.primaryHostname.optional(),
-                vendor_id: schemas.vendorId.optional(),
+                vendor_primary_hostname: schemas.primaryHostname.optional(),
+                vendor_id: z.number().int().optional(),
                 usage_type: z.enum(['security', 'relationship']).optional().default('security').describe('The usage type of questionnaires to return'),
                 exclude_archived: z.boolean().optional().describe('Optionally exclude archived questionnaires')
             },

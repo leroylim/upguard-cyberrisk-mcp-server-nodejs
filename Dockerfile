@@ -29,7 +29,9 @@ COPY --from=builder /app/node_modules ./node_modules
 # Copy application code
 COPY --chown=upguard:nodejs src/ ./src/
 COPY --chown=upguard:nodejs package*.json ./
-COPY --chown=upguard:nodejs jest.config.js ./
+
+# Set production environment
+ENV NODE_ENV=production
 
 # Create logs directory
 RUN mkdir -p logs && chown upguard:nodejs logs

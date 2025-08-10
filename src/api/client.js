@@ -62,6 +62,11 @@ async function request(method, path, params = {}, body = null, options = {}) {
                 }
             };
 
+            // Allow callers to specify responseType (e.g., 'arraybuffer' for binary)
+            if (options.responseType) {
+                requestConfig.responseType = options.responseType;
+            }
+
             // Only include body for non-GET requests
             if (method.toUpperCase() !== 'GET' && body !== null) {
                 requestConfig.data = body;
@@ -69,10 +74,23 @@ async function request(method, path, params = {}, body = null, options = {}) {
 
             const response = await axios.request(requestConfig);
 
+            const dataSize = (() => {
+                const headerValue = response.headers?.['content-length'];
+                const headerLength = headerValue ? parseInt(headerValue, 10) : NaN;
+                if (!Number.isNaN(headerLength)) return headerLength;
+                try {
+                    if (typeof response.data === 'string') return Buffer.byteLength(response.data, 'utf8');
+                    if (Buffer.isBuffer(response.data)) return response.data.length;
+                    return JSON.stringify(response.data).length;
+                } catch (_e) {
+                    return -1;
+                }
+            })();
+
             logger.info('Response received:', formatObject({
                 status: response.status,
                 statusText: response.statusText,
-                dataSize: JSON.stringify(response.data).length
+                dataSize
             }));
 
             // Cache successful GET responses

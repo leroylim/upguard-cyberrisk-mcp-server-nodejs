@@ -5,7 +5,7 @@
   "license": "MIT",
   "author": "Han Yong Lim <hanyong.lim@gmail.com>",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
     "start:stdio": "powershell -ExecutionPolicy Bypass -File start-stdio.ps1",
@@ -80,7 +80,6 @@
     "axios": "^1.9.0",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
-    "winston": "^3.17.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

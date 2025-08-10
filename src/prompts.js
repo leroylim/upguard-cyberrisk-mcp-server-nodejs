@@ -56,9 +56,9 @@ function registerPrompts(server) {
                     role: 'user',
                     content: {
                         type: 'text',
-                        text: `Please analyze risks for vendor ${args.vendorHostname} using the following steps:
+                    text: `Please analyze risks for vendor ${args.vendorHostname} using the following steps:
 1. Get current vendor risks using 'upguard_get_vendor_risks'
-2. If timeRange is provided, get risk changes using 'upguard_get_account_risks_diff'
+2. If timeRange is provided, get risk changes using 'upguard_get_vendor_risks_diff'
 3. Get vendor details using 'upguard_get_vendor_details'
 4. Summarize the findings and highlight critical issues`
                     }

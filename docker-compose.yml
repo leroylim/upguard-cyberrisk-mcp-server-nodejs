@@ -22,8 +22,9 @@ services:
       retries: 3
       start_period: 40s
     labels:
-      - "com.example.description=UpGuard CyberRisk MCP Server"
-      - "com.example.version=1.2.0"
+      - "org.opencontainers.image.title=UpGuard CyberRisk MCP Server"
+      - "org.opencontainers.image.description=Model Context Protocol server for UpGuard CyberRisk"
+      - "org.opencontainers.image.version=1.3.0"
 
   # Development override
   upguard-mcp-server-dev:

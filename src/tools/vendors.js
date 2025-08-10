@@ -186,12 +186,12 @@ function registerTools(server) {
         }
     );
 
-    // Swagger: /vendor/additional_evidence_list - operationId: vendor_additional_evidence_list
+    // Swagger: /vendor/additionalevidence/list - operationId: additional_evidences_list
     server.tool(
         'upguard_get_vendor_additional_evidence_list',
         'Get a chronological list of additional evidence documents uploaded for vendor security assessments',
         {
-                hostname: z.string().describe('The primary hostname of the vendor to get additional evidence list for')
+                vendor_primary_hostname: z.string().describe('The primary hostname of the vendor to show additional evidence for')
             },
         async (params) => {
             try {
@@ -204,7 +204,7 @@ function registerTools(server) {
         }
     );
 
-    // Swagger: /vendor/additional_evidence - operationId: vendor_additional_evidence
+    // Swagger: /vendor/additionalevidence - operationId: additional_evidence
     server.tool(
         'upguard_get_vendor_additional_evidence',
         'Retrieve specific additional evidence documents by ID for detailed vendor security documentation',

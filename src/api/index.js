@@ -4,7 +4,6 @@ const risks = require('./risks');
 const subsidiaries = require('./subsidiaries');
 const typosquat = require('./typosquat');
 const questionnaires = require('./questionnaires');
-const vulnerabilities = require('./vulnerabilities');
 const labels = require('./labels');
 const notifications = require('./notifications');
 const vendors = require('./vendors');
@@ -22,7 +21,6 @@ module.exports = {
     ...subsidiaries,
     ...typosquat,
     ...questionnaires,
-    ...vulnerabilities,
     ...labels,
     ...notifications,
     ...vendors,

@@ -8,13 +8,14 @@ function registerTools(server) {
         'List all hostnames registered for bulk monitoring with pagination support',
         {
             page_token: z.string().optional().describe('The page_token from a previous request, use this to get the next page of results'),
-            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page (10-2000)'),
-            sort_by: z.enum(['hostname', 'created_at', 'updated_at']).optional().default('hostname').describe('Sort hostnames by. Options: "hostname" (hostname alphabetically), "created_at" (when hostname was first registered), "updated_at" (when hostname was last modified). Default: "hostname"'),
+            page_size: z.number().int().min(10).max(2000).optional().default(200).describe('The number of results to return per page (10-2000, default 200)'),
             sort_desc: z.boolean().optional().default(false).describe('Whether to sort the results in descending order'),
-            include_inactive: z.boolean().optional().default(false).describe('Whether to include inactive hostnames in the results'),
-            include_labels: z.boolean().optional().default(false).describe('Whether to include labels for each hostname'),
-            include_vendor: z.boolean().optional().default(false).describe('Whether to include vendor information for each hostname'),
-            include_scan_info: z.boolean().optional().default(false).describe('Whether to include scan information for each hostname')
+            omit_scan_info: z.boolean().optional().default(false).describe('Omit the scan information, i.e. risks, score and last scanned at.'),
+            omit_vendor: z.boolean().optional().default(false).describe('Omit the vendor information for a hostname in the response.'),
+            omit_labels: z.boolean().optional().default(false).describe('Omit the labels for a hostname in the response.'),
+            exclude_active: z.boolean().optional().default(false).describe('Exclude active hostnames from the results.'),
+            exclude_inactive: z.boolean().optional().default(false).describe('Exclude inactive hostnames from the results.'),
+            labels: z.array(z.string()).optional().describe('Filter results to only hostnames that have all the provided labels.')
         },
         async (params) => {
             try {
@@ -31,7 +32,8 @@ function registerTools(server) {
         'upguard_bulk_register_hostnames',
         'Register multiple hostnames for bulk monitoring',
         {
-            hostnames: z.array(z.string()).min(1).max(100).describe('Array of hostnames to register for monitoring (max 100 per request)')
+            hostnames: z.array(z.string()).min(1).max(1000).describe('Array of hostnames to register for monitoring (max 1000 per request)'),
+            labels: z.array(z.string()).optional().describe('Labels to add to the registered hostnames')
         },
         async (params) => {
             try {
@@ -48,7 +50,7 @@ function registerTools(server) {
         'upguard_bulk_deregister_hostnames',
         'Deregister multiple hostnames from bulk monitoring',
         {
-            hostnames: z.array(z.string()).min(1).max(100).describe('Array of hostnames to deregister from monitoring (max 100 per request)')
+            hostnames: z.array(z.string()).min(1).max(1000).describe('Array of hostnames to deregister from monitoring (max 1000 per request)')
         },
         async (params) => {
             try {

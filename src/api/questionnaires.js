@@ -15,7 +15,7 @@ async function sendVendorQuestionnaire(body) {
  * @returns {Promise<object>} Questionnaire attachment
  */
 async function getVendorQuestionnaireAttachment(params) {
-    return get('/vendor/questionnaire/attachment', params);
+    return get('/vendor/questionnaire/attachment', params, { responseType: 'arraybuffer' });
 }
 
 /**

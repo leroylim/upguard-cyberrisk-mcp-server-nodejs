@@ -56,10 +56,11 @@ function registerTools(server) {
         'Get a comprehensive list of active security risks detected for your account with advanced filtering and pagination',
         {
             min_severity: schemas.severity.optional(),
+            include_meta: z.boolean().optional().default(false).describe('Include metadata for risks'),
             page_token: z.string().optional().describe('The page_token from a previous request, use this to get the next page of results'),
-            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page (10-2000)'),
-            sort_by: z.enum(['severity', 'hostname', 'risk_type', 'first_detected_at', 'last_detected_at']).optional().default('severity').describe('Sort risks by. Options: "severity" (risk severity level), "hostname" (affected hostname), "risk_type" (type of risk), "first_detected_at" (when first detected), "last_detected_at" (when last seen). Default: "severity"'),
-            sort_desc: z.boolean().optional().default(false).describe('Whether to sort the results in descending order')
+            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page (10-2000, default 1000)'),
+            sort_by: z.enum(['severity', 'hostname', 'risk_type', 'first_detected_at', 'last_detected_at']).optional().default('severity').describe('Sort by field'),
+            sort_desc: z.boolean().optional().default(false).describe('Sort in descending order')
         },
         async (params) => {
             try {
@@ -76,12 +77,10 @@ function registerTools(server) {
         'upguard_get_vendor_risks',
         'Get detailed security risks for a specific vendor to assess their cybersecurity posture and compliance status',
         {
-            primary_hostname: schemas.primaryHostname.describe('The primary hostname of the vendor to get security risks for (e.g., "vendor.com")'),
+            primary_hostname: schemas.primaryHostname.describe('The primary hostname of the vendor (e.g., "vendor.com")'),
             min_severity: schemas.severity.optional(),
-            page_token: z.string().optional().describe('The page_token from a previous request, use this to get the next page of results'),
-            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page'),
-            sort_by: z.enum(['severity', 'hostname', 'risk_type', 'first_detected_at', 'last_detected_at']).optional().default('severity').describe('Sort vendor risks by. Options: "severity" (risk severity level), "hostname" (affected hostname), "risk_type" (type of risk), "first_detected_at" (when first detected), "last_detected_at" (when last seen). Default: "severity"'),
-            sort_desc: z.boolean().optional().default(false).describe('Whether to sort the results in descending order')
+            include_meta: z.boolean().optional().default(false).describe('Include metadata for risks'),
+            exclude_hostnames: z.boolean().optional().default(false).describe('Exclude hostnames for risks')
         },
         async (params) => {
             try {
@@ -117,12 +116,8 @@ function registerTools(server) {
         'Get risk changes for a specific vendor over a time period with detailed change tracking',
         {
             vendor_primary_hostname: schemas.vendorPrimaryHostname.describe('The primary hostname of the vendor to get risk changes for'),
-            start_date: z.string().describe('The start date for the risk changes query (RFC 3339 format)'),
-            end_date: z.string().optional().describe('The end date for the risk changes query (RFC 3339 format). If not provided, defaults to current time'),
-            page_token: z.string().optional().describe('The page_token from a previous request, use this to get the next page of results'),
-            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page (10-2000)'),
-            sort_by: z.enum(['severity', 'hostname', 'risk_type', 'first_detected_at', 'last_detected_at']).optional().default('severity').describe('The field to sort the risk changes by'),
-            sort_desc: z.boolean().optional().default(false).describe('Whether to sort the results in descending order')
+            start_date: z.string().datetime().describe('The start date for the risk changes query (RFC 3339 format)'),
+            end_date: z.string().datetime().optional().describe('The end date for the risk changes query (RFC 3339 format). If not provided, latest risks will be used')
         },
         async (params) => {
             try {
@@ -139,12 +134,10 @@ function registerTools(server) {
         'upguard_get_vendors_risks_diff',
         'Get risk changes for multiple vendors over a time period with detailed change tracking',
         {
-            start_date: z.string().describe('The start date for the risk changes query (RFC 3339 format)'),
-            end_date: z.string().optional().describe('The end date for the risk changes query (RFC 3339 format). If not provided, defaults to current time'),
+            start_date: z.string().datetime().describe('The start date for the risk changes query (RFC 3339 format)'),
+            end_date: z.string().datetime().optional().describe('The end date for the risk changes query (RFC 3339 format). If not provided, latest risks will be used'),
             page_token: z.string().optional().describe('The page_token from a previous request, use this to get the next page of results'),
-            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page (10-2000)'),
-            sort_by: z.enum(['severity', 'hostname', 'risk_type', 'first_detected_at', 'last_detected_at']).optional().default('severity').describe('The field to sort the risk changes by'),
-            sort_desc: z.boolean().optional().default(false).describe('Whether to sort the results in descending order')
+            page_size: z.number().int().min(10).max(200).optional().default(20).describe('The number of results to return per page (10-200, default 20)')
         },
         async (params) => {
             try {
@@ -161,12 +154,11 @@ function registerTools(server) {
         'upguard_get_vendor_questionnaire_risks',
         'Get security risks identified through vendor questionnaire responses and assessments',
         {
-            vendor_primary_hostname: z.string().describe('The primary hostname of the vendor to get questionnaire-based risks for'),
-            min_severity: schemas.severity.optional(),
+            vendor_id: z.number().int().optional().describe('Restrict risks to a specific watched vendor by ID'),
+            primary_hostname: schemas.primaryHostname.optional().describe('Restrict risks to a specific watched vendor by primary hostname'),
+            questionnaire_id: z.number().int().optional().describe('Restrict risks to a specific questionnaire by ID'),
             page_token: z.string().optional().describe('The page_token from a previous request, use this to get the next page of results'),
-            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page'),
-            sort_by: z.enum(['severity', 'hostname', 'risk_type', 'first_detected_at', 'last_detected_at']).optional().default('severity').describe('Sort questionnaire risks by. Options: "severity" (risk severity level), "hostname" (affected hostname), "risk_type" (type of risk), "first_detected_at" (when first detected), "last_detected_at" (when last seen). Default: "severity"'),
-            sort_desc: z.boolean().optional().default(false).describe('Whether to sort the results in descending order')
+            page_size: z.number().int().min(10).max(2000).optional().describe('The number of results to return per page (10-2000, default 1000)')
         },
         async (params) => {
             try {
@@ -183,12 +175,12 @@ function registerTools(server) {
         'upguard_get_vendor_questionnaire_risks_v2',
         'Get enhanced security risks from vendor questionnaire responses using the latest assessment methodology (v2)',
         {
-            vendor_primary_hostname: z.string().describe('The primary hostname of the vendor to get enhanced questionnaire risks for'),
-            min_severity: schemas.severity.optional(),
+            vendor_id: z.number().int().optional().describe('Restrict risks to a specific watched vendor by ID'),
+            primary_hostname: schemas.primaryHostname.optional().describe('Restrict risks to a specific watched vendor by primary hostname'),
+            questionnaire_id: z.number().int().optional().describe('Restrict risks to a specific questionnaire by ID'),
             page_token: z.string().optional().describe('The page_token from a previous request, use this to get the next page of results'),
-            page_size: z.number().int().min(10).max(2000).optional().default(1000).describe('The number of results to return per page'),
-            sort_by: z.enum(['severity', 'hostname', 'risk_type', 'first_detected_at', 'last_detected_at']).optional().default('severity').describe('Sort enhanced questionnaire risks by. Options: "severity" (risk severity level), "hostname" (affected hostname), "risk_type" (type of risk), "first_detected_at" (when first detected), "last_detected_at" (when last seen). Default: "severity"'),
-            sort_desc: z.boolean().optional().default(false).describe('Whether to sort the results in descending order')
+            page_size: z.number().int().min(10).max(2000).optional().describe('The number of results to return per page (10-2000, default 1000)'),
+            ignore_waived_risks: z.boolean().optional().describe('Indicates that waived risks should not be returned')
         },
         async (params) => {
             try {
