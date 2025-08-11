@@ -18,7 +18,6 @@ module.exports = {
     '!src/utils/doc-generator.js',
     '!src/utils/telemetry.js',
     '!src/security/index.js',
-    '!src/config/enhanced.js',
     '!src/utils/errors.js',
     '!src/utils/rateLimit.js',
     '!src/tools/utils.js'

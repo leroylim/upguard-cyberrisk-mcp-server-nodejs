@@ -15,14 +15,14 @@ This document provides real-world examples of using all the enhanced systems tog
 const { z } = require('zod');
 const { telemetry } = require('../utils/telemetry');
 const { SecurityManager } = require('../security');
-const { configManager } = require('../config/enhanced');
+const config = require('../config');
 const { logger } = require('../utils/logger');
 
 // Initialize security with configuration
 const security = new SecurityManager({
-  apiKeyRotationDays: configManager.get('security.apiKeyRotationDays'),
-  rateLimitWindow: configManager.get('security.rateLimitWindow'),
-  auditLog: configManager.get('security.auditLogging')
+  apiKeyRotationDays: 90,
+  rateLimitWindow: 900000,
+  auditLog: true
 });
 
 // Enhanced schema with comprehensive validation
@@ -85,10 +85,10 @@ async function enhancedVendorMonitoring(params) {
     const validatedParams = vendorMonitoringSchema.parse(sanitizedParams);
     
     // Step 2: Configuration and API setup
-    const apiKey = configManager.get('api.key');
-    const baseUrl = configManager.get('api.baseUrl');
-    const timeout = configManager.get('api.timeout');
-    const retryAttempts = configManager.get('api.retryAttempts');
+    const apiKey = config.api.key;
+    const baseUrl = config.api.baseUrl;
+    const timeout = config.api.timeout;
+    const retryAttempts = 3;
     
     // Validate API key strength and rotation needs
     const keyValidation = security.validateApiKey(apiKey);
@@ -156,7 +156,7 @@ async function enhancedVendorMonitoring(params) {
         
         // Wait before retry (exponential backoff)
         if (attempt < retryAttempts) {
-          const delay = configManager.get('api.retryDelay') * Math.pow(2, attempt - 1);
+          const delay = 1000 * Math.pow(2, attempt - 1);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
@@ -218,11 +218,11 @@ async function enhancedVendorMonitoring(params) {
     });
     
     // Cache the result for quick access
-    if (configManager.get('cache.enabled')) {
+    if (true) {
       // This would integrate with a cache system
       logger.debug('Caching vendor monitoring result', {
         vendor_id: apiResult.vendor_id,
-        cache_ttl: configManager.get('cache.defaultTtl')
+        cache_ttl: 300
       });
     }
     
@@ -351,7 +351,7 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 
 // Enhanced modules
-const { configManager } = require('./src/config/enhanced');
+const config = require('./src/config');
 const { telemetry } = require('./src/utils/telemetry');
 const { SecurityManager } = require('./src/security');
 const { ApiDocumentationGenerator } = require('./src/utils/doc-generator');
@@ -373,18 +373,17 @@ class EnhancedMCPServer {
   async initialize() {
     try {
       // Load and validate configuration
-      this.config = configManager.load(process.env.CONFIG_FILE);
+      this.config = config;
       logger.info('Configuration loaded successfully', {
-        env: this.config.nodeEnv,
-        transport: this.config.transport.mode,
-        monitoring: this.config.monitoring.enabled
+        env: this.config.environment,
+        transport: this.config.transport.mode
       });
       
       // Initialize security with configuration
       this.security = new SecurityManager({
         apiKeyRotationDays: this.config.security.apiKeyRotationDays,
-        rateLimitWindow: this.config.transport.http.rateLimiting.windowMs,
-        rateLimitMax: this.config.transport.http.rateLimiting.maxRequests,
+        rateLimitWindow: 60000,
+        rateLimitMax: 100,
         auditLog: this.config.security.auditLogging
       });
       
@@ -506,8 +505,8 @@ class EnhancedMCPServer {
       
       const clientIp = req.ip || req.connection.remoteAddress;
       const rateLimitResult = this.security.checkRateLimit(clientIp, {
-        windowMs: this.config.transport.http.rateLimiting.windowMs,
-        maxRequests: this.config.transport.http.rateLimiting.maxRequests
+        windowMs: 60000,
+        maxRequests: 100
       });
       
       if (!rateLimitResult.allowed) {
@@ -522,17 +521,17 @@ class EnhancedMCPServer {
         return res.status(429).json({
           error: 'Rate limit exceeded',
           retryAfter: rateLimitResult.retryAfter,
-          limit: this.config.transport.http.rateLimiting.maxRequests,
-          window: this.config.transport.http.rateLimiting.windowMs / 1000
+          limit: 100,
+          window: 60
         });
       }
       
       // Add rate limit headers
       res.set({
-        'X-RateLimit-Limit': this.config.transport.http.rateLimiting.maxRequests.toString(),
+        'X-RateLimit-Limit': '100',
         'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
         'X-RateLimit-Reset': rateLimitResult.resetTime.toISOString(),
-        'X-RateLimit-Window': (this.config.transport.http.rateLimiting.windowMs / 1000).toString()
+        'X-RateLimit-Window': '60'
       });
       
       next();
@@ -549,7 +548,7 @@ class EnhancedMCPServer {
           timestamp: new Date().toISOString(),
           uptime: snapshot.uptime,
           version: process.env.npm_package_version || '1.0.0',
-          environment: this.config.nodeEnv,
+          environment: this.config.environment,
           
           // System metrics
           system: {
@@ -579,7 +578,7 @@ class EnhancedMCPServer {
           components: {
             upguardApi: await this.checkUpGuardApi(),
             cache: this.config.cache.enabled,
-            monitoring: this.config.monitoring.enabled,
+            
             security: true
           }
         };
@@ -605,16 +604,7 @@ class EnhancedMCPServer {
       }
     });
     
-    // Metrics endpoint (Prometheus format)
-    this.app.get('/metrics', (req, res) => {
-      try {
-        res.set('Content-Type', 'text/plain');
-        res.send(telemetry.exportPrometheusMetrics());
-      } catch (error) {
-        logger.error('Metrics export failed', { error: error.message });
-        res.status(500).send('# Metrics export failed');
-      }
-    });
+    // Optional: add a metrics endpoint using telemetry if desired
     
     // API documentation
     const openApiSpec = this.docGenerator.generateDocumentation(tools, schemas);
@@ -740,11 +730,10 @@ class EnhancedMCPServer {
     // Configuration status endpoint
     this.app.get('/admin/config-status', (req, res) => {
       try {
-        const safeConfig = configManager.getSafeConfig();
         res.json({
-          environment: this.config.nodeEnv,
-          config: safeConfig,
-          validation: 'passed'
+          environment: this.config.environment,
+          config: { api: { baseUrl: this.config.api.baseUrl, timeout: this.config.api.timeout } },
+          validation: 'n/a'
         });
       } catch (error) {
         res.status(500).json({ error: error.message });
@@ -793,7 +782,7 @@ class EnhancedMCPServer {
       if (!res.headersSent) {
         res.status(500).json({
           error: 'Internal Server Error',
-          message: this.config.nodeEnv === 'development' ? error.message : 'An unexpected error occurred',
+          message: this.config.environment === 'development' ? error.message : 'An unexpected error occurred',
           timestamp: new Date().toISOString(),
           requestId: req.id
         });
@@ -836,10 +825,9 @@ class EnhancedMCPServer {
         logger.info('Server started successfully', {
           port,
           host,
-          environment: this.config.nodeEnv,
+          environment: this.config.environment,
           documentation: `http://${host}:${port}/docs`,
-          health: `http://${host}:${port}/health`,
-          metrics: `http://${host}:${port}/metrics`
+          health: `http://${host}:${port}/health`
         });
       });
       
@@ -968,7 +956,7 @@ module.exports = { EnhancedMCPServer };
 // tests/integration/enhanced-server.test.js
 const request = require('supertest');
 const { EnhancedMCPServer } = require('../../server');
-const { configManager } = require('../../src/config/enhanced');
+const config = require('../../src/config');
 
 describe('Enhanced MCP Server Integration', () => {
   let server;
@@ -1024,16 +1012,7 @@ describe('Enhanced MCP Server Integration', () => {
       });
     });
     
-    test('GET /metrics returns Prometheus format', async () => {
-      const response = await request(app)
-        .get('/metrics')
-        .expect(200)
-        .expect('Content-Type', 'text/plain; charset=utf-8');
-      
-      expect(response.text).toContain('api_requests_total');
-      expect(response.text).toContain('memory_usage_bytes');
-      expect(response.text).toContain('security_events_total');
-    });
+    // Optional metrics endpoint test can be added if metrics route is implemented
   });
 
   describe('Security Features', () => {

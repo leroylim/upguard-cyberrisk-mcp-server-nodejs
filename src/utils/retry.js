@@ -11,6 +11,8 @@ class RetryPolicy {
         this.backoffFactor = options.backoffFactor || 2;
         this.retryableErrors = options.retryableErrors || ['ECONNRESET', 'ENOTFOUND', 'ECONNREFUSED', 'ETIMEDOUT'];
         this.retryableStatusCodes = options.retryableStatusCodes || [429, 500, 502, 503, 504];
+        // Optional jitter to reduce thundering herd; disabled by default to keep behavior predictable
+        this.jitter = options.jitter || false;
     }
 
     async execute(fn, context = '') {
@@ -72,8 +74,12 @@ class RetryPolicy {
     }
 
     calculateDelay(attempt) {
-        const delay = this.baseDelay * Math.pow(this.backoffFactor, attempt - 1);
-        return Math.min(delay, this.maxDelay);
+        const exponentialDelay = Math.min(this.baseDelay * Math.pow(this.backoffFactor, attempt - 1), this.maxDelay);
+        if (!this.jitter) {
+            return exponentialDelay;
+        }
+        // Full jitter: random between 0 and exponentialDelay
+        return Math.floor(Math.random() * exponentialDelay);
     }
 
     sleep(ms) {

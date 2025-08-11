@@ -12,7 +12,7 @@ A Model Context Protocol (MCP) server for integrating with UpGuard's CyberRisk A
 - **Comprehensive Schema Validation** with 22 Zod schema definitions
 - **CI/CD Integration** with automated documentation deployment
 
-## Enhanced Prompts (New in v1.3.0)
+## Enhanced Prompts (New in v1.4.0)
 
 The server now includes **25 comprehensive prompts** (8 enhanced + 17 existing) that provide guided workflows for complex security operations:
 
@@ -380,4 +380,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**UpGuard CyberRisk MCP Server** v1.3.0 | Licensed under MIT | [View Documentation](docs/generated/index.html) 
+**UpGuard CyberRisk MCP Server** v1.4.0 | Licensed under MIT | [View Documentation](docs/generated/index.html) 

@@ -39,7 +39,7 @@ const config = require('./config');
 async function createServer() {
     const serverInstance = new McpServer({
         name: 'upguard_cyberrisk_mcp_server',
-        version: '1.3.0',
+        version: '1.4.0',
         description: 'MCP server for interacting with the UpGuard CyberRisk API, providing comprehensive risk assessment and management capabilities.'
     });
 
@@ -204,7 +204,7 @@ async function startHttpServer() {
     const { port, host } = config.transport.http;
     httpServer = app.listen(port, host, () => {
         const sessionMode = config.transport.http.sessionManagement ? 'with session management' : 'stateless';
-        logger.info(`[MCP Server Log] UpGuard CyberRisk MCP Server (v1.3.0) HTTP transport running on ${host}:${port} (${sessionMode})`);
+        logger.info(`[MCP Server Log] UpGuard CyberRisk MCP Server (v1.4.0) HTTP transport running on ${host}:${port} (${sessionMode})`);
         logger.info(`HTTP server started on ${host}:${port} (${sessionMode})`);
     });
 
@@ -217,7 +217,7 @@ async function startStdioServer() {
     const transport = new StdioServerTransport();
     
     await serverInstance.connect(transport);
-    logger.info('[MCP Server Log] UpGuard CyberRisk MCP Server (v1.3.0) with 25 prompts + 67 tools STDIO transport is running...');
+    logger.info('[MCP Server Log] UpGuard CyberRisk MCP Server (v1.4.0) with 25 prompts + 67 tools STDIO transport is running...');
     logger.info('STDIO server started');
 }
 

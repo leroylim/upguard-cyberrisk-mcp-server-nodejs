@@ -4,8 +4,8 @@
 
 ### **1. Load Configuration**
 ```javascript
-const { configManager } = require('./src/config/enhanced');
-const config = configManager.load('./config/production.json');
+const config = require('./src/config');
+// config.api.baseUrl, config.api.key, etc.
 ```
 
 ### **2. Track Performance**
@@ -58,7 +58,7 @@ await generator.saveDocumentation('./docs');
 const { z } = require('zod');
 const { telemetry } = require('../utils/telemetry');
 const { SecurityManager } = require('../security');
-const { configManager } = require('../config/enhanced');
+const config = require('../config');
 
 const security = new SecurityManager();
 
@@ -75,7 +75,7 @@ async function toolHandler(params) {
     const validated = schema.parse(clean);
     
     // Get config
-    const apiKey = configManager.get('api.key');
+    const apiKey = config.api.key;
     
     // Execute logic
     const result = await doWork(validated);
@@ -291,17 +291,12 @@ app.use(createSecurityMiddleware());
 
 ### **Configuration Override**
 ```javascript
-// Load base config then override specific values
-const baseConfig = configManager.load('./config/base.json');
-
-// Override for testing
-const testOverrides = {
-  api: { timeout: 5000 },
-  logging: { level: 'debug' },
-  cache: { enabled: false }
+// Example: derive a testing config from environment config
+const testConfig = {
+  ...config,
+  api: { ...config.api, timeout: 5000 },
+  environment: 'test'
 };
-
-const testConfig = configManager.deepMerge(baseConfig, testOverrides);
 ```
 
 ---

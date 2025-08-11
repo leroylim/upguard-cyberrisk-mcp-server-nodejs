@@ -74,17 +74,15 @@ async function request(method, path, params = {}, body = null, options = {}) {
 
             const response = await axios.request(requestConfig);
 
+            // Compute data size efficiently without heavy serialization
             const dataSize = (() => {
                 const headerValue = response.headers?.['content-length'];
                 const headerLength = headerValue ? parseInt(headerValue, 10) : NaN;
                 if (!Number.isNaN(headerLength)) return headerLength;
-                try {
-                    if (typeof response.data === 'string') return Buffer.byteLength(response.data, 'utf8');
-                    if (Buffer.isBuffer(response.data)) return response.data.length;
-                    return JSON.stringify(response.data).length;
-                } catch (_e) {
-                    return -1;
-                }
+                if (typeof response.data === 'string') return Buffer.byteLength(response.data, 'utf8');
+                if (Buffer.isBuffer(response.data)) return response.data.length;
+                // For objects, avoid JSON.stringify cost; provide an approximate marker
+                return -1;
             })();
 
             logger.info('Response received:', formatObject({

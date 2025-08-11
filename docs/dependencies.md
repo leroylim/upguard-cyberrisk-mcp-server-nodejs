@@ -12,7 +12,6 @@ The following dependencies are required for the application to run in a producti
 | `axios` | `^1.9.0` | A promise-based HTTP client for the browser and node.js. |
 | `dotenv` | `^16.5.0` | A zero-dependency module that loads environment variables from a `.env` file into `process.env`. |
 | `express` | `^4.21.2` | A fast, unopinionated, minimalist web framework for node. |
-| `winston` | `^3.17.0` | A multi-transport async logging library for node.js. |
 | `zod` | `^3.23.8` | A TypeScript-first schema declaration and validation library. |
 
 ## 2. Development Dependencies

@@ -1,6 +1,6 @@
 {
   "name": "upguard-cyberrisk-mcp-server",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A Model Context Protocol server for interacting with the UpGuard CyberRisk API, providing risk assessment and management capabilities.",
   "license": "MIT",
   "author": "Han Yong Lim <hanyong.lim@gmail.com>",

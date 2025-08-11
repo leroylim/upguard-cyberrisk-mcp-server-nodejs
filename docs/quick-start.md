@@ -38,7 +38,7 @@ node src/index.js
 
 # You should see:
 # [INFO] Starting MCP server with stdio transport
-# [MCP Server Log] UpGuard CyberRisk MCP Server (v1.3.0) STDIO transport is running...
+# [MCP Server Log] UpGuard CyberRisk MCP Server (v1.4.0) STDIO transport is running...
 # [INFO] STDIO server started
 ```
 

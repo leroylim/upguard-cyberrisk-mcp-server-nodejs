@@ -8,36 +8,31 @@ This guide documents the enhanced implementations added to the UpGuard CyberRisk
 
 ## 🔧 **Enhanced Configuration Management**
 
-### **Location:** `src/config/enhanced.js`
+### **Location:** `src/config.js`
 
 The enhanced configuration system provides centralized, validated configuration management with environment-specific overrides and security-first defaults.
 
 ### **Key Features:**
-- **Zod Schema Validation**: Compile-time configuration validation
-- **Environment Variable Support**: Load settings from env vars
-- **File-based Configuration**: JSON config file support
-- **Deep Merging**: Environment overrides file settings
-- **Security Redaction**: Safe config export for logging
+- **Environment Variable Support**: Load settings from env vars (no external config manager)
+- **Simple, explicit shape**: `api`, `transport.http`, `environment`
 
 ### **Basic Usage:**
 
 ```javascript
-const { configManager } = require('./src/config/enhanced');
-
-// Load configuration
-const config = configManager.load('./config/production.json');
+const config = require('./src/config');
 
 // Access configuration values
-const apiTimeout = configManager.get('api.timeout');
-const isProduction = configManager.isProduction();
-const logLevel = configManager.get('logging.level');
+const apiTimeout = config.api.timeout;
+const isProduction = config.environment === 'production';
+const logLevel = process.env.LOG_LEVEL || 'info';
 
-// Get safe config for logging (sensitive data redacted)
-const safeConfig = configManager.getSafeConfig();
-console.log('Loaded config:', safeConfig);
+console.log('Loaded config (safe):', {
+  environment: config.environment,
+  api: { baseUrl: config.api.baseUrl, timeout: config.api.timeout }
+});
 ```
 
-### **Environment Variables:**
+### **Environment Variables (actual runtime config):**
 
 ```bash
 # Required
@@ -76,90 +71,25 @@ export AUDIT_LOGGING="true"
 export RATE_LIMIT_BY_IP="true"
 ```
 
-### **Configuration File Example:**
-
-```json
-{
-  "nodeEnv": "production",
-  "api": {
-    "baseUrl": "https://cyber-risk.upguard.com/api/public",
-    "timeout": 120000,
-    "retryAttempts": 3,
-    "retryDelay": 1000
-  },
-  "transport": {
-    "mode": "http",
-    "http": {
-      "port": 3000,
-      "host": "0.0.0.0",
-      "sessionManagement": false,
-      "corsEnabled": false,
-      "rateLimiting": {
-        "enabled": true,
-        "windowMs": 900000,
-        "maxRequests": 100
-      }
-    }
-  },
-  "logging": {
-    "level": "info",
-    "file": "./logs/production.log",
-    "console": true,
-    "structured": true,
-    "maxFiles": 5,
-    "maxSize": "10m"
-  },
-  "cache": {
-    "enabled": true,
-    "defaultTtl": 3600,
-    "maxSize": 1000,
-    "checkPeriod": 600
-  },
-  "monitoring": {
-    "enabled": true,
-    "healthCheckInterval": 30000,
-    "metricsEnabled": true,
-    "alerting": {
-      "enabled": true,
-      "webhookUrl": "https://hooks.slack.com/your-webhook",
-      "errorThreshold": 5
-    }
-  },
-  "security": {
-    "apiKeyRotationDays": 90,
-    "encryptSensitiveData": true,
-    "auditLogging": true,
-    "rateLimitByIp": true
-  }
-}
-```
+Note: Previous drafts showed a conceptual JSON-based config with advanced fields (e.g., `monitoring`, `rateLimiting`). The current codebase uses only environment variables via `src/config.js`.
 
 ### **Integration Example:**
 
 ```javascript
 // server.js
-const { configManager } = require('./src/config/enhanced');
+const config = require('./src/config');
 const { logger } = require('./src/utils/logger');
 
 async function startServer() {
   try {
-    // Load configuration
-    const config = configManager.load(process.env.CONFIG_FILE);
-    
-    // Validate API connection
-    const isConnected = await configManager.validateApiConnection();
-    if (!isConnected) {
-      throw new Error('Cannot connect to UpGuard API');
-    }
-    
     // Start server with config
-    const port = configManager.get('transport.http.port');
-    const host = configManager.get('transport.http.host');
+    const port = config.transport.http.port;
+    const host = config.transport.http.host;
     
     logger.info('Server starting', { 
       port, 
       host, 
-      env: configManager.get('nodeEnv') 
+      env: config.environment 
     });
     
   } catch (error) {
@@ -261,11 +191,7 @@ console.log('Current metrics:', JSON.stringify(snapshot, null, 2));
 const prometheusMetrics = telemetry.exportPrometheusMetrics();
 console.log(prometheusMetrics);
 
-// Expose metrics endpoint
-app.get('/metrics', (req, res) => {
-  res.set('Content-Type', 'text/plain');
-  res.send(telemetry.exportPrometheusMetrics());
-});
+// Optional: implement a metrics endpoint using telemetry if needed
 ```
 
 ### **Integration with Express:**
@@ -303,11 +229,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Metrics endpoint
-app.get('/metrics', (req, res) => {
-  res.set('Content-Type', 'text/plain');
-  res.send(telemetry.exportPrometheusMetrics());
-});
+// Optional: implement a metrics endpoint using telemetry if needed
 ```
 
 ---
@@ -675,7 +597,7 @@ module.exports = { generateDocs };
 ```javascript
 // server.js
 const express = require('express');
-const { configManager } = require('./src/config/enhanced');
+const config = require('./src/config');
 const { telemetry } = require('./src/utils/telemetry');
 const { SecurityManager } = require('./src/security');
 const { ApiDocumentationGenerator } = require('./src/utils/doc-generator');
@@ -683,7 +605,7 @@ const { logger } = require('./src/utils/logger');
 
 async function createServer() {
   // Load configuration
-  const config = configManager.load(process.env.CONFIG_FILE);
+  // Using unified environment-driven config
   
   // Initialize security
   const security = new SecurityManager({
@@ -778,7 +700,7 @@ if (require.main === module) {
 const { z } = require('zod');
 const { telemetry } = require('../utils/telemetry');
 const { SecurityManager } = require('../security');
-const { configManager } = require('../config/enhanced');
+const config = require('../config');
 const { logger } = require('../utils/logger');
 
 const security = new SecurityManager();
@@ -805,9 +727,9 @@ async function startMonitoringVendor(params) {
     const validatedParams = vendorMonitoringSchema.parse(sanitizedParams);
     
     // Get API configuration
-    const apiKey = configManager.get('api.key');
-    const baseUrl = configManager.get('api.baseUrl');
-    const timeout = configManager.get('api.timeout');
+    const apiKey = config.api.key;
+    const baseUrl = config.api.baseUrl;
+    const timeout = config.api.timeout;
     
     // Validate API key
     const keyValidation = security.validateApiKey(apiKey);
@@ -1051,7 +973,7 @@ env | grep UPGUARD
 node -e "console.log(JSON.parse(require('fs').readFileSync('./config/production.json')))"
 
 # Test configuration loading
-node -e "const {configManager} = require('./src/config/enhanced'); console.log(configManager.load())"
+node -e "console.log(require('./src/config'))"
 ```
 
 **Metrics Not Collecting:**

@@ -4,13 +4,13 @@ The UpGuard MCP server includes **25 comprehensive prompts** that provide guided
 
 ## 📋 **Prompt Overview**
 
-- **8 Enhanced Prompts** (NEW in v1.3.0) - Advanced workflow prompts for complex operations
+- **8 Enhanced Prompts** (NEW in v1.4.0) - Advanced workflow prompts for complex operations
 - **17 Existing Prompts** - Organizational, vendor management, and specialized risk prompts
 - **Total: 25 Prompts** across all security management workflows
 
 ---
 
-## **Enhanced Prompts (v1.3.0)**
+## **Enhanced Prompts (v1.4.0)**
 
 ### 1. `upguard_comprehensive_risk_assessment`
 **Purpose**: Perform a complete risk assessment for your organization or specific vendors.
@@ -124,6 +124,6 @@ For questions about these enhanced prompts:
 
 ---
 
-**Version**: 1.3.0  
+**Version**: 1.4.0  
 **Enhanced Prompts Added**: 2024-12-20  
 **Total Prompts**: 25 (8 enhanced + 17 existing)

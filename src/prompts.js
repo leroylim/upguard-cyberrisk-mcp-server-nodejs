@@ -59,7 +59,7 @@ function registerPrompts(server) {
                     text: `Please analyze risks for vendor ${args.vendorHostname} using the following steps:
 1. Get current vendor risks using 'upguard_get_vendor_risks'
 2. If timeRange is provided, get risk changes using 'upguard_get_vendor_risks_diff'
-3. Get vendor details using 'upguard_get_vendor_details'
+3. Get vendor details using 'upguard_get_vendor'
 4. Summarize the findings and highlight critical issues`
                     }
                 }
@@ -562,6 +562,390 @@ ${args.customLabelsFilter ? `**Step 3: Custom Filtering**
         })
     );
 
+    // ===== ADDITIONAL PROMPTS (New Recommendations) =====
+
+    // 1) Vendor comparison benchmark
+    server.prompt(
+        'upguard_vendor_comparison_benchmark',
+        {
+            vendorHostnames: z.array(z.string()).min(2).max(10)
+                .describe('Vendor primary hostnames to compare'),
+            minSeverity: schemas.severity.optional().default('high')
+                .describe('Minimum risk severity for comparison')
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: {
+                    type: 'text',
+                    text: `Compare security posture for: ${args.vendorHostnames.join(', ')}
+For each vendor:
+- Use 'upguard_get_vendor' with hostname to get overall score and context
+- Use 'upguard_get_vendor_risks' with primary_hostname and min_severity=${args.minSeverity}
+Then:
+- Rank vendors by critical/high risk counts, overall score, and trend cues
+- Highlight top 3 concerns per vendor and shared themes
+- Provide actionable recommendations and quick wins`
+                }
+            }]
+        })
+    );
+
+    // 2) Overdue questionnaire follow-up
+    server.prompt(
+        'upguard_overdue_questionnaire_followup',
+        {
+            vendorHostnames: z.array(z.string()).optional()
+                .describe('Optional set of vendors to check; if omitted, consider all'),
+            usageType: z.enum(['security', 'relationship']).optional()
+                .describe('Filter questionnaires by usage type'),
+            daysThreshold: z.number().int().min(1).max(180).optional().default(14)
+                .describe('Consider questionnaires overdue after N days')
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: {
+                    type: 'text',
+                    text: `Identify questionnaires that are pending or overdue (> ${args.daysThreshold} days)${args.usageType ? ` for usage_type=${args.usageType}` : ''}.
+Steps:
+${args.vendorHostnames ? args.vendorHostnames.map(h => `- For vendor '${h}', call 'upguard_get_vendor_questionnaires_v2' with vendor_primary_hostname='${h}'${args.usageType ? ` and usage_type='${args.usageType}'` : ''}`).join('\\n') :
+`- List monitored vendors with 'upguard_list_monitored_vendors' (page as needed)
+- For each vendor, call 'upguard_get_vendor_questionnaires_v2'${args.usageType ? ` with usage_type='${args.usageType}'` : ''}`}
+Then:
+- Flag questionnaires not completed and older than ${args.daysThreshold} days
+- Generate follow-up recommendations and a templated email for each vendor`
+                }
+            }]
+        })
+    );
+
+    // 3) Vendor offboarding workflow
+    server.prompt(
+        'upguard_vendor_offboarding_workflow',
+        {
+            vendorHostname: z.string().describe('Vendor primary hostname to offboard'),
+            includeFinalReport: z.boolean().optional().default(true)
+                .describe('Queue a final report for archival'),
+            emailAddresses: schemas.emailArray.optional()
+                .describe('Notify recipients when report completes')
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: {
+                    type: 'text',
+                    text: `Perform vendor offboarding for '${args.vendorHostname}':
+1) Stop monitoring: 'upguard_stop_monitoring_vendor' with hostname='${args.vendorHostname}'
+2) Inventory:
+   - 'upguard_get_vendor_domains' with vendor_primary_hostname='${args.vendorHostname}'
+   - 'upguard_get_vendor_ips' with vendor_primary_hostname='${args.vendorHostname}'
+${args.includeFinalReport ? `3) Final report:
+   - Queue 'upguard_queue_report_export' with report_type='VendorDetailedPDF', vendor_primary_hostname='${args.vendorHostname}'${args.emailAddresses ? `, email_addresses=[${args.emailAddresses.map(e => `'${e}'`).join(', ')}]` : ''}
+   - Track via 'upguard_get_report_export_status'` : ''}
+4) Output: offboarding summary, assets snapshot, and archival notes`
+                }
+            }]
+        })
+    );
+
+    // 4) Custom report template run
+    server.prompt(
+        'upguard_custom_report_template_run',
+        {
+            templateNameOrUuid: z.string()
+                .describe('Custom report template name or UUID'),
+            vendor_primary_hostname: z.string().optional()
+                .describe('Target vendor for vendor-scoped templates'),
+            email_addresses: schemas.emailArray.optional()
+                .describe('Recipients to email when report is ready'),
+            wait_for_data: z.boolean().optional().default(false)
+                .describe('Wait up to 72h for vendor data if needed')
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: {
+                    type: 'text',
+                    text: `1) Discover templates:
+- Call 'upguard_list_custom_report_templates'
+- Find matching template by UUID or closest name to '${args.templateNameOrUuid}'
+2) Queue export:
+- Use 'upguard_queue_report_export' with report_type='CustomPDF'${args.vendor_primary_hostname ? `, vendor_primary_hostname='${args.vendor_primary_hostname}'` : ''}${args.email_addresses ? `, email_addresses=[${args.email_addresses.map(e => `'${e}'`).join(', ')}]` : ''}${args.wait_for_data ? ', wait_for_data=true' : ''}
+3) Track status with 'upguard_get_report_export_status'
+4) Provide summary and download link when complete`
+                }
+            }]
+        })
+    );
+
+    // 5) Weekly change digest
+    server.prompt(
+        'upguard_weekly_change_digest',
+        {
+            periodDays: z.number().int().min(1).max(90).optional().default(7)
+                .describe('Period to analyze for changes'),
+            vendorHostnames: z.array(z.string()).optional()
+                .describe('Optional vendors to scope the digest')
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: {
+                    type: 'text',
+                    text: `Generate a ${args.periodDays}-day change digest${args.vendorHostnames ? ` for: ${args.vendorHostnames.join(', ')}` : ''}.
+Steps:
+${args.vendorHostnames ? args.vendorHostnames.map(h =>
+`- 'upguard_get_vendor_risks_diff' with vendor_primary_hostname='${h}', start_date=(now-${args.periodDays}d), end_date=now
+- 'upguard_get_vendor_risks' with primary_hostname='${h}' for current snapshot`).join('\\n') :
+`- 'upguard_get_account_risks_diff' with start_date=(now-${args.periodDays}d), end_date=now
+- 'upguard_get_account_risks' for current snapshot`}
+Output:
+- New vs resolved risks, severity mix changes, top movers
+- Executive summary and recommended actions`
+                }
+            }]
+        })
+    );
+
+    // 6) Alerting health check
+    server.prompt(
+        'upguard_alerting_health_check',
+        {
+            channelMap: z.record(z.string().url()).optional()
+                .describe('Optional map of team->webhook URL for validation or creation')
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: {
+                    type: 'text',
+                    text: `Validate webhook alerting:
+1) Inventory:
+   - 'upguard_get_webhook_notification_types'
+   - 'upguard_list_webhooks'
+2) Test data:
+   - 'upguard_get_webhook_sample_data' for representative types
+${args.channelMap && Object.keys(args.channelMap).length
+? `3) Ensure channels exist:
+${Object.entries(args.channelMap).map(([team,url]) => `   - If missing, 'upguard_create_webhook' name='${team}', hook_url='${url}'`).join('\\n')}` : ''}
+4) Validate coverage against notification types
+5) Output a health report with gaps, fixes, and next steps`
+                }
+            }]
+        })
+    );
+
+    // 7) Label hygiene audit
+    server.prompt(
+        'upguard_label_hygiene_audit',
+        {
+            target: z.enum(['vendors','domains','ips'])
+                .describe('Asset type to audit'),
+            canonicalLabels: z.array(z.string()).optional()
+                .describe('Preferred label set; detect deviations'),
+            dryRun: z.boolean().optional().default(true)
+                .describe('Report-only if true; propose updates if false')
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: { type: 'text', text:
+`Audit label usage for ${args.target}:
+1) Inventory:
+   - Vendors: 'upguard_list_monitored_vendors'
+   - Domains: 'upguard_get_domains'
+   - IPs: 'upguard_get_ips'
+2) Analyze:
+   - Detect typos, casing differences, synonyms vs canonical set${args.canonicalLabels ? ` (${args.canonicalLabels.join(', ')})` : ''}
+3) Plan:
+   - Propose normalized label set and per-asset changes
+4) Apply (if dryRun=false):
+   - Vendors: 'upguard_update_vendor_labels' (vendor_primary_hostname, labels)
+   - Domains: 'upguard_update_domain_labels' (hostname, labels)
+   - IPs: 'upguard_update_ip_labels' (ip, labels)
+5) Output: findings, change plan, and risks of change` }
+            }]
+        })
+    );
+
+    // 8) Asset label reorganization wizard
+    server.prompt(
+        'upguard_asset_label_reorganization_wizard',
+        {
+            mapping: z.record(z.string(), z.string())
+                .describe('Old->new label mapping, e.g. {"Prod":"production"}'),
+            scope: z.enum(['vendors','domains','ips','all']).default('all'),
+            dryRun: z.boolean().optional().default(true)
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: { type: 'text', text:
+`Plan label remapping across ${args.scope}:
+1) Discover current labels:
+   - Vendors: 'upguard_list_monitored_vendors'
+   - Domains: 'upguard_get_domains'
+   - IPs: 'upguard_get_ips'
+2) Compute changes using mapping: ${JSON.stringify(args.mapping)}
+3) If dryRun=true: produce change report only
+4) If dryRun=false: apply changes with:
+   - 'upguard_update_vendor_labels' / 'upguard_update_domain_labels' / 'upguard_update_ip_labels'
+5) Validate and summarize results` }
+            }]
+        })
+    );
+
+    // 9) Subsidiary domain audit
+    server.prompt(
+        'upguard_subsidiary_domain_audit',
+        {
+            subsidiary_primary_hostname: z.string()
+                .describe('Subsidiary primary hostname'),
+            labelPlan: z.object({
+                business_unit: z.string().optional(),
+                environment: z.enum(['production','staging','development']).optional(),
+                criticality: z.enum(['critical','high','medium','low']).optional()
+            }).optional(),
+            autoLabel: z.boolean().optional().default(false)
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: { type: 'text', text:
+`Audit domains for subsidiary '${args.subsidiary_primary_hostname}':
+1) List: 'upguard_get_subsidiary_domains' (subsidiary_primary_hostname)
+2) Assess posture with 'upguard_get_domain_details' for a representative set
+${args.autoLabel && args.labelPlan ? 
+`3) Standardize labels per plan ${JSON.stringify(args.labelPlan)}
+   - 'upguard_update_subsidiary_domain_labels' (subsidiary_primary_hostname, hostname, labels)` : ''}
+4) Output: posture summary, label consistency, and recommendations` }
+            }]
+        })
+    );
+
+    // 10) Vendor portfolio trend analysis
+    server.prompt(
+        'upguard_vendor_portfolio_trend_analysis',
+        {
+            labels: z.array(z.string()).optional()
+                .describe('Filter portfolio by vendor labels'),
+            timeWindowDays: z.number().int().min(1).max(180).default(30)
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: { type: 'text', text:
+`Trend analysis over ${args.timeWindowDays} days for ${args.labels?.length ? `labels: ${args.labels.join(', ')}` : 'entire portfolio'}:
+1) Discover cohort: 'upguard_list_monitored_vendors'${args.labels?.length ? ` with labels` : ''} (page as needed)
+2) For each vendor:
+   - 'upguard_get_vendor_risks_diff' (vendor_primary_hostname, start_date=now-${args.timeWindowDays}d, end_date=now)
+3) Rank top movers (risk increases/decreases), severity mix shifts, and emerging risk types
+4) Recommendations by cohort and top 5 vendors` }
+            }]
+        })
+    );
+
+    // 11) Waived risk review (questionnaire-driven)
+    server.prompt(
+        'upguard_waived_risk_review',
+        {
+            vendor_primary_hostname: z.string().optional()
+                .describe('Optional vendor scope'),
+            periodDays: z.number().int().min(7).max(365).default(90)
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: { type: 'text', text:
+`Review waived questionnaire risks in the last ${args.periodDays} days${args.vendor_primary_hostname ? ` for '${args.vendor_primary_hostname}'` : ''}:
+1) Retrieve risks including waived:
+   - 'upguard_get_vendor_questionnaire_risks_v2' (${args.vendor_primary_hostname ? `primary_hostname='${args.vendor_primary_hostname}', ` : ''}ignore_waived_risks=false)
+2) Retrieve excluding waived:
+   - 'upguard_get_vendor_questionnaire_risks_v2' (${args.vendor_primary_hostname ? `primary_hostname='${args.vendor_primary_hostname}', ` : ''}ignore_waived_risks=true)
+3) Compare sets to identify waived items and aging waivers
+4) Output: candidates for re-evaluation, business impact, and next steps` }
+            }]
+        })
+    );
+
+    // 12) Breach response readiness check
+    server.prompt(
+        'upguard_breach_response_readiness_check',
+        {
+            domains: z.array(z.string()).optional()
+                .describe('Domains to assess; omit for broad scan'),
+            includeUnverified: z.boolean().optional().default(false)
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: { type: 'text', text:
+`Assess breach monitoring readiness${args.domains?.length ? ` for: ${args.domains.join(', ')}` : ''}:
+1) Inventory & signals:
+   - 'upguard_get_breached_identities' (page as needed)${args.includeUnverified ? ', include unverified in analysis' : ''}
+2) Deep-dive samples:
+   - For selected breach_ids, 'upguard_get_identity_breach'
+3) Coverage & gaps:
+   - Identify weak coverage, stale detections, and data class exposures
+4) Output: readiness score, gaps, and hardening plan` }
+            }]
+        })
+    );
+
+    // 13) Report automation planner
+    server.prompt(
+        'upguard_report_automation_planner',
+        {
+            cadence: z.enum(['weekly','monthly','quarterly']).default('monthly'),
+            recipients: z.object({
+                executives: schemas.emailArray.optional(),
+                security_team: schemas.emailArray.optional(),
+                compliance_team: schemas.emailArray.optional()
+            }).default({}),
+            includeVendorRiskProfile: z.boolean().optional().default(true),
+            customTemplateUuid: z.string().optional()
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: { type: 'text', text:
+`Plan ${args.cadence} automated reporting:
+1) Queue executive/board reports:
+   - 'upguard_queue_report_export' (report_type='BoardSummaryPDF' or 'VendorRiskExecutiveSummaryPDF', email_addresses=${JSON.stringify(args.recipients.executives || [])})
+2) Technical/ops reports:
+   - ${args.includeVendorRiskProfile ? `'upguard_queue_report_export' (report_type='VendorRiskProfileXLSX')` : 'Optionally include risk profile XLSX'}
+3) Compliance pack:
+   - 'upguard_queue_report_export' (report_type='BreachSightDetailedPDF', email_addresses=${JSON.stringify(args.recipients.compliance_team || [])})
+4) Custom template (optional):
+   - ${args.customTemplateUuid ? `Use 'CustomPDF' with custom_report_uuid='${args.customTemplateUuid}'` : 'Set if available'}
+5) Provide scheduling guidance and status tracking with 'upguard_get_report_export_status'` }
+            }]
+        })
+    );
+
+    // 14) Security incident rollup
+    server.prompt(
+        'upguard_security_incident_rollup',
+        {
+            periodDays: z.number().int().min(1).max(90).default(14),
+            includeDiffs: z.boolean().optional().default(true)
+        },
+        (args) => ({
+            messages: [{
+                role: 'user',
+                content: { type: 'text', text:
+`Create a ${args.periodDays}-day incident rollup:
+1) Notifications:
+   - 'upguard_get_notifications' (summarize high-impact events)
+2) ${args.includeDiffs ? `Risk changes:
+   - 'upguard_get_account_risks_diff' (start_date=now-${args.periodDays}d, end_date=now)` : 'Skip risk diffs by request'}
+3) Correlate incidents with risk movements; identify root causes and hot spots
+4) Output: timeline, correlated events, and remediation priorities` }
+            }]
+        })
+    );
+
     // ===== EXISTING PROMPTS FROM ROOT INDEX.JS =====
 
     // Organizational details prompt
@@ -614,8 +998,11 @@ Present the list clearly.`
         ({ vendorHostnameOrId }) => ({
             messages: [{ role: 'user', content: { type: 'text', text: `
 Generate a comprehensive risk profile for vendor identified by '${vendorHostnameOrId}'.
-1. Resolve '${vendorHostnameOrId}' to a vendor ID and primary hostname. If it's already an ID, confirm its hostname. You can use 'upguard_resolve_vendor_by_hostname' if a hostname is provided. If an ID is provided, use 'upguard_get_vendor_details' with the ID to get the hostname. Let's call the resolved primary hostname VENDOR_HOSTNAME and vendor ID VENDOR_ID.
-2. Use 'upguard_get_vendor_details' with VENDOR_ID or VENDOR_HOSTNAME to get general details and overall scores.
+1. Resolve '${vendorHostnameOrId}' to a vendor ID and primary hostname:
+   - If a hostname is provided, call 'upguard_get_vendor' with hostname to retrieve and confirm vendor details (including ID).
+   - If an ID is provided, call 'upguard_get_vendor' with id to retrieve and confirm the primary hostname.
+   Let's call the resolved primary hostname VENDOR_HOSTNAME and vendor ID VENDOR_ID.
+2. Use 'upguard_get_vendor' with VENDOR_ID or VENDOR_HOSTNAME to get general details and overall scores.
 3. Use 'upguard_get_vendor_risks' with primary_hostname VENDOR_HOSTNAME and min_severity 'info' to list all current risks.
 4. Use 'upguard_list_vendor_questionnaires_v2' with vendor_primary_hostname VENDOR_HOSTNAME (or vendor_id VENDOR_ID) to get a list of their questionnaires and statuses.
 5. Summarize the vendor's name, overall score, number of active risks by severity (count them from step 3), and a summary of their questionnaire activity (e.g., number of sent, completed, in-review questionnaires).`
